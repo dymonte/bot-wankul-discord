@@ -1,6 +1,18 @@
 import random, requests, json, time, discord
 
 
+cost_per_rarity={
+    1:1,
+    2:1,
+    3:2,
+    4:5,
+    5:10,
+    6:15,
+    7:25,
+    8:50,
+    9:100
+}
+
 
 with open("config.json", "r") as f:
     config = json.load(f)

@@ -14,13 +14,15 @@ class PlayerDatabase(Database):
     def drop_table(self) -> None:
         """
         Supprime la table players
+        TODO : Supprimer uniquement pour le serveur en question
         """
         self.players_table.drop()
 
 
     def get_player_data(self, id_guild : int, id_user : int)->dict:
         """
-        Renvoie les informations du joueur sour forme d'un dictionnaire
+        Renvoie les informations du joueur sour forme d'un dictionnaire, 
+        * si l'entrée dans la base de données n'existe pas, elle l'initialise avec des valeurs par défaut
         """
         guild_data=self.players_table.find_one({"_id":str(id_guild)})
         
@@ -30,7 +32,7 @@ class PlayerDatabase(Database):
 
         player_data=guild_data.get("players",{}).get(str(id_user),{})
         if player_data=={}:
-            self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user):{"last_roll":(0,0,0), "level":10, "number_of_rolls":0, "cards":{}}}})
+            self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user):{"last_roll":(0,0,0), "money":0, "level":10, "number_of_rolls":0, "cards":{}}}})
             return {"last_roll":(0,0,0), "level":10, "number_of_rolls":0, "cards":{}}
         return player_data
     
@@ -122,6 +124,12 @@ class PlayerDatabase(Database):
             print(i)
         return [i for i in self.players_table.find()]
     
+
+    def add_money(self, id_guild : int, id_user : int, amount : int) -> None:
+        self.get_player_data(id_guild, id_user)
+        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".money":amount}})
+
+
 
 
 

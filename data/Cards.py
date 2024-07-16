@@ -20,6 +20,8 @@ class Cards():
     def get_card(id_card):
         return requests.request("GET",url+"/v1/card/"+str(id_card)).json()
     
+    def get_rarity_id(id_card):
+        return Cards.get_card(id_card).get("rarity_id")
 
     def get_embed_card(id_card : int, quantity : int = 0, detailed : bool = False)->discord.Embed:
         card=Cards.get_card(id_card)
@@ -82,6 +84,7 @@ class Cards():
     
 
 if __name__ == "__main__":
-    # for i in range(100):Cards.random_card()
-    # print((0,1)==[0,1])
-    pass
+    for i in range(100):
+        print(i, Cards.random_card()["rarity"]["name"]) #Cards.random_card()
+    # # print((0,1)==[0,1])
+    # pass

@@ -44,6 +44,9 @@ async def roll(inte : discord.Interaction):
 
 @tree.command(name="drop", description="drop")
 async def dr(inte : discord.Interaction):
+    """
+    TODO
+    """
     p.drop_table()
     await inte.response.send_message("done", ephemeral=True)
 
@@ -99,7 +102,7 @@ async def se(inte : discord.Interaction, name : str):
 
 @tree.command(name="sell", description="sell")
 async def sell(inte : discord.Interaction, offre : str):
-    formated=fbot.format_list_card(offre, p.get_player_data(inte.user.id).get("cards",{}))
+    formated_list=fbot.format_list_card(offre, p.get_player_data(inte.user.id).get("cards",{}))
 
 @tree.command(name="info_player", description="buy")
 async def info_player(inte : discord.Interaction, user : discord.User = None):
