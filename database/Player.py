@@ -32,7 +32,7 @@ class PlayerDatabase(Database):
 
         player_data=guild_data.get("players",{}).get(str(id_user),{})
         if player_data=={}:
-            self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user):{"last_roll":(0,0,0), "money":0, "level":10, "number_of_rolls":0, "cards":{}}}})
+            self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user):{"last_roll":(0,0,0), "money":0, "level":10, "color":"#ffffff", "number_of_rolls":0, "cards":{}}}})
             return {"last_roll":(0,0,0), "level":10, "number_of_rolls":0, "cards":{}}
         return player_data
     
@@ -124,6 +124,9 @@ class PlayerDatabase(Database):
             print(i)
         return [i for i in self.players_table.find()]
     
+
+    def set_player_color(self, id_guild : int, id_user : int, color : str) -> None:
+        self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user)+".color":color}})
 
     def add_money(self, id_guild : int, id_user : int, amount : int) -> None:
         self.get_player_data(id_guild, id_user)

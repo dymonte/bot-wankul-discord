@@ -74,6 +74,12 @@ class TradeAcceptView(discord.ui.View):
         """
         if interaction.user.id!=self.id_user1 and interaction.user.id!=self.id_user2:
             return
+        
+        self.embed_trade.set_footer(text=f"Refus de {interaction.user.name}")
+        self.embed_trade.color=discord.Color.red()
+        await self.inte.edit_original_response(embed=self.embed_trade)
+        await interaction.response.defer()
+
         for card in self.list_cards_usr1:
             p.add_card(self.guild_id, self.id_user1, card[0], card[1])
 
@@ -95,8 +101,3 @@ class TradeAcceptView(discord.ui.View):
         for card in self.list_cards_usr2:
             p.add_card(self.guild_id, self.id_user2, card[0], card[1])
         self.stop()
-    #     self.text_input = discord.ui.TextInput(label="Entrez votre texte", placeholder="Entrez votre texte ici", custom_id="my_text_input")
-
-
-    # async def on_submit(self, interaction: discord.Interaction):
-    #     await interaction.response.send_message("Done")

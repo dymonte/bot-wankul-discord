@@ -36,9 +36,7 @@ def embed_wait() -> discord.Embed:
         color=discord.Color.dark_gold(),
     )
 
-def format_list_card(l : str, cards : dict)-> list:# exemple [[122,2],[384,1]] sans prendre en compte les cartes non possédées ou en trop faible quantité
-    all_cards=[[int(e) for e in i.split("|") if e!=""] for i in l.split("&") if i!=""]
-    return [e for e in all_cards if cards.get(str(e[0]),0)>=e[1] or e=='']
+
 
 
 if __name__ == "__main__":
