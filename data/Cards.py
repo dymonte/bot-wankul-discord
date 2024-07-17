@@ -82,6 +82,8 @@ class Cards():
         cards : le dictionnaire des cartes possédées par le joueur
         """
 
+        print(cards)
+
         all_cards=[[int(e) for e in i.split("|") if e!=""] for i in l.split("&") if i!=""] # mise sous forme de liste de la chaine de caractere
         return [e for e in all_cards if cards.get(str(e[0]),0)>=e[1] or e==''] # ne garde que les cartes possedees en assez grande quantite
     

@@ -1,8 +1,5 @@
 import discord
 
-import data.Cards
-import fbot
-
 import database.Player as Player
 
 from data.Cards import Cards

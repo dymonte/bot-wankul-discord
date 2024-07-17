@@ -13,6 +13,12 @@ cost_per_rarity={
     9:100
 }
 
+shop_prices={
+    "lvlUp":1000,
+    "stock":30
+}
+
+maxLvl=5
 
 with open("config.json", "r") as f:
     config = json.load(f)
@@ -36,7 +42,16 @@ def embed_wait() -> discord.Embed:
         color=discord.Color.dark_gold(),
     )
 
+def embed_shop(level : int, stock : int, money : int) -> discord.Embed:
+    embed=discord.Embed(
+        title=f"**Shop** - 🪙 {money}",
+        color=discord.Color.dark_gold(),
+    )
+    if level<5: embed.add_field(name="💎 Level Up *(🪙1000)*", value=f"Augmentez votre niveau\nVous êtes actuellement niveau {level}/5", inline=False)
 
+    embed.add_field(name="🃏 Acheter 3 cartes (🪙30)", value=f"Achetez des stocks de roll supplémentaires\nVous avez actuellement {stock} en stock", inline=False)
+
+    return embed
 
 
 if __name__ == "__main__":

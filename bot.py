@@ -13,6 +13,7 @@ import database.Player as Player, fbot
 from Views.Collection import CollectionView
 from Views.Trade import TradeAcceptView
 from Views.Sell import SellView
+from Views.Shop import ShopView
 from data.Cards import Cards
 
 
@@ -67,12 +68,12 @@ async def cl(inte : discord.Interaction, user : discord.User = None, show : bool
         await inte.response.send_message(ephemeral=not show, embed=Cards.get_embed_card(list_of_cards[0][0], list_of_cards[0][1]).set_footer(text=f"1/{len(list_of_cards)}"), view=CollectionView(list_of_cards))
 
 
-@tree.command(name="info", description="Informations sur une carte")
+@tree.command(name="info_card", description="Informations sur une carte")
 async def cl(inte : discord.Interaction, id_card : int):
     await inte.response.send_message(embed=Cards.get_embed_card(id_card, detailed=True), ephemeral=True)
 
 
-@tree.command(name="trade", description="exemple de format de trade : 125|1&18|2")
+@tree.command(name="trade", description="exemple de format de trade : 125|1&18|2 ('&' correspond a vide)")
 async def te(inte : discord.Interaction, user : discord.User, offre : str, demande : str):
 
 
@@ -101,7 +102,12 @@ async def tdb(inte : discord.Interaction):
 @tree.command(name="search", description="Search")
 async def se(inte : discord.Interaction, name : str):
     list_search=Cards.search(name)
-    await inte.response.send_message(embed=Cards.get_embed_card(list_search[0]).set_footer(text=f"1/{len(list_search)}"), ephemeral=True, view=CollectionView(Cards.search(name)))
+    if len(list_search)==0:
+        await inte.response.send_message(content="aucune carte", ephemeral=True, delete_after=5)
+    elif len(list_search)==1:
+        await inte.response.send_message(ephemeral=True, embed=Cards.get_embed_card(list_search[0]).set_footer(text="1/1"))
+    else:
+        await inte.response.send_message(embed=Cards.get_embed_card(list_search[0]).set_footer(text=f"1/{len(list_search)}"), ephemeral=True, view=CollectionView(Cards.search(name)))
 
 
 @tree.command(name="sell", description="sell")
@@ -140,8 +146,8 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
 
     embed=discord.Embed(title=f"{user.global_name} ({user.name})", color=color)
     embed.set_thumbnail(url=user.display_avatar.url)
-    embed.add_field(name="Level", value=f"{data.get("level",0)}", inline=True)
-    embed.add_field(name="Gold", value=f"{data.get("money",0)}", inline=True)
+    embed.add_field(name="💎 Level", value=f"{data.get("level",0)}", inline=True)
+    embed.add_field(name="🪙 Gold", value=f"{data.get("money",0)}", inline=True)
 
 
     await inte.response.send_message(embed=embed, ephemeral=not show)
@@ -152,5 +158,11 @@ async def change_color(inte : discord.Interaction, color : str):
     p.set_player_color(inte.guild.id, inte.user.id, color)
     await inte.response.send_message(f"Couleur changee en {color}", ephemeral=True)
 
+@tree.command(name="shop", description="Ouvrir le shop")
+async def shop(inte : discord.Interaction):
+    embed=fbot.embed_shop(p.get_lvl(inte.guild.id, inte.user.id), p.get_stock(inte.guild.id, inte.user.id), p.get_money(inte.guild.id, inte.user.id))
+    
+
+    await inte.response.send_message(embed=embed, ephemeral=False, view=ShopView(inte, inte.user.id, embed))
 
 bot.run(fbot.DISCORD_TOKEN)

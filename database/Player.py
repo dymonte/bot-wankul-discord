@@ -32,8 +32,8 @@ class PlayerDatabase(Database):
 
         player_data=guild_data.get("players",{}).get(str(id_user),{})
         if player_data=={}:
-            self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user):{"last_roll":(0,0,0), "money":0, "level":10, "color":"#ffffff", "number_of_rolls":0, "cards":{}}}})
-            return {"last_roll":(0,0,0), "level":10, "number_of_rolls":0, "cards":{}}
+            player_data={"last_roll":(0,0,0), "money":3000, "level":0, "color":"#ffffff", "number_of_rolls":0, "stock":5, "cards":{}}
+            self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user):player_data}})
         return player_data
     
 
@@ -44,7 +44,7 @@ class PlayerDatabase(Database):
 
         data=self.get_player_data(id_guild, id_user)
         if fbot.formated_date()==data.get("last_roll",(0,0,0)):
-            return data.get("number_of_rolls",0)<data.get("level",1) 
+            return data.get("number_of_rolls",0)<(data.get("level",1)+10) 
         return True
 
 
@@ -58,30 +58,37 @@ class PlayerDatabase(Database):
 
 
         if fbot.formated_date()!=data.get("last_roll",(0,0,0)): # si l'heure a changée depuis le dernier roll
-            print(f"heure changée pour {id_user}")
             self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user)+".last_roll":fbot.formated_date()}}) # on met a jour l'heure
             self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user)+".number_of_rolls":1}}) # on reset le nombre de rolls
 
-            return data.get("level",1)-1
+            return (data.get("level",0)+10)-1
     
-        if data.get("number_of_rolls",0)<data.get("level",1): # sinon si il reste des rolls
+        if data.get("number_of_rolls",0)<(data.get("level",0)+10): # sinon si il reste des rolls
             self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".number_of_rolls":1}}) # on incremente le nombre de roll
-        return data.get("level",1)-(data.get("number_of_rolls",0)+1)
+        return (data.get("level",0)+10)-(data.get("number_of_rolls",0)+1)
 
 
-    def roll(self, id_guild : int ,id_user : int, test : bool = False) -> list[discord.Embed]: 
-        if not self.can_roll(id_guild, id_user) and not test: return fbot.embed_wait()
+    def roll(self, id_guild : int ,id_user : int) -> list[discord.Embed]: 
+        stock=self.get_stock(id_guild, id_user)
+        can_roll=self.can_roll(id_guild, id_user)
+        if not can_roll and stock==0: 
+            return fbot.embed_wait()
 
-        nb_remaining_roll=self.update_roll(id_guild, id_user)
+        elif can_roll:
+            nb_remaining_roll=self.update_roll(id_guild, id_user)
+    
+        else:
+            self.add_stock(id_guild, id_user, -1)
+            stock-=1
+            nb_remaining_roll=0
 
         rolled=Cards.random_card()
 
         self.add_card(id_guild, id_user, rolled["id"])
 
-        embed=Cards.get_embed_card(rolled["id"]).set_footer(text=f"Il reste {nb_remaining_roll}")
+        embed=Cards.get_embed_card(rolled["id"]).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{stock} en stock)" if stock else ""))
 
         return embed
-
     
 
     def add_card(self, id_guild : int, id_user : int, id_card : int, quantity : int  = 1) -> None: 
@@ -132,7 +139,20 @@ class PlayerDatabase(Database):
         self.get_player_data(id_guild, id_user)
         self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".money":amount}})
 
+    def get_lvl(self, id_guild : int, id_user : int) -> int:
+        return self.get_player_data(id_guild, id_user).get("level",0)
 
+    def add_lvl(self, id_guild : int, id_user : int, amount : int = 1) -> None:
+        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".level":amount}})
 
+    def get_money(self, id_guild : int, id_user : int) -> int:
+        return self.get_player_data(id_guild, id_user).get("money",0)
+    
+    def add_money(self, id_guild : int, id_user : int, amount : int) -> None:
+        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".money":amount}})
 
+    def get_stock(self, id_guild : int, id_user : int) -> int:
+        return self.get_player_data(id_guild, id_user).get("stock",0)
 
+    def add_stock(self, id_guild : int, id_user : int, amount : int) -> None:
+        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".stock":amount}})
