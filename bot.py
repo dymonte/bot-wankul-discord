@@ -165,4 +165,23 @@ async def shop(inte : discord.Interaction):
 
     await inte.response.send_message(embed=embed, ephemeral=False, view=ShopView(inte, inte.user.id, embed))
 
+@tree.command(name="auto_sell", description="vendre automatiquement")
+async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : bool = True):
+    cards=p.get_player_data(inte.guild.id, inte.user.id).get("cards",{})
+
+    quantity_to_keep=(1 if keep_one else 0)
+
+    total_price=0
+    for id_card, quantity in cards.items():
+        card_rarity=Cards.get_rarity(int(id_card)).get("id")
+        if quantity>quantity_to_keep and card_rarity <=rarity:
+            quantity_to_sell=quantity-quantity_to_keep
+            price=fbot.cost_per_rarity.get(Cards.get_rarity(int(id_card)).get("id"), 0)*(quantity_to_sell)
+            p.add_card(inte.guild.id, inte.user.id, id_card, -(quantity_to_sell))
+
+            total_price+=price
+
+    p.add_money(inte.guild.id, inte.user.id, total_price)
+    await inte.response.send_message(f"J'ai vendu pour {total_price} gold{'s' if total_price>1 else ''}.", ephemeral=True)
+
 bot.run(fbot.DISCORD_TOKEN)
