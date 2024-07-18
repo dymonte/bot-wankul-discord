@@ -3,39 +3,41 @@ import discord
 import data.Cards
 import fbot
 
-import database.Player as Player
+import database.PlayerDB as PlayerDB
+
+from database.Player import Player
 
 from data.Cards import Cards
 
-p=Player.PlayerDatabase()
+p=PlayerDB.PlayerDatabase()
 
 
 class ShopView(discord.ui.View):
 
-    def __init__(self, inte: discord.Interaction, id_user : int, embed : discord.Embed):
+    def __init__(self, inte: discord.Interaction, player : Player, embed : discord.Embed):
         super().__init__()
 
         self.inte=inte
-        self.id_user=id_user
+        self.player=player
         self.embed=embed
 
 
     @discord.ui.button(emoji="💎", style=discord.ButtonStyle.success, custom_id="lvlUp")
     async def lvlUp(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-        player_data=p.get_player_data(self.inte.guild.id, self.id_user)
-        player_level=player_data.get("level",0)
-        player_gold=player_data.get("gold",0)
+        
+        player_level=self.player.get_lvl()
+        player_gold=self.player.get_gold()
 
         if player_level<fbot.maxLvl and p.get_gold(self.inte.guild.id, self.id_user)>=fbot.shop_prices["lvlUp"][player_level+1]:
             p.add_gold(self.inte.guild.id, self.id_user, -1*fbot.shop_prices["lvlUp"][player_level+1])
             p.add_lvl(self.inte.guild.id, self.id_user)
 
-            player_level+=1
+            player_level=self.player.get_lvl()
 
-            player_gold-=fbot.shop_prices["lvlUp"][player_level]
+            player_gold=self.player.get_gold()
 
 
-            self.embed=fbot.embed_shop(player_level, player_data.get("stock",0), player_gold)
+            self.embed=fbot.embed_shop(player_level, self.player.get_stock(), player_gold)
 
             self.embed.set_footer(text="+1 level")
 
@@ -51,15 +53,17 @@ class ShopView(discord.ui.View):
 
     @discord.ui.button(emoji="🃏", style=discord.ButtonStyle.success, custom_id="buyCards")
     async def buyCards(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-        if p.get_gold(self.inte.guild.id, self.id_user)>=30:
-            p.add_gold(self.inte.guild.id, self.id_user, -30)
-            p.add_stock(self.inte.guild.id, self.id_user, 3)
+        if self.player.get_gold()>=30:
+            self.player.add_gold(-30)
+            self.player.add_stock(3)
+
+            self.embed.set_field_at(1,name="🃏 **Acheter 3 cartes** (🪙30)", value=f"Achetez des stocks de roll supplémentaires\nVous avez actuellement {self.player.get_stock()} en stock", inline=False)
 
             self.embed.set_footer(text="+3 cartes en stock")
         else:
             self.embed.set_footer(text="Pas assez de gold")
         
-        self.embed.title=f"**Shop** - 🪙 {p.get_gold(self.inte.guild.id, self.id_user)}"
+        self.embed.title=f"**Shop** - 🪙 {self.player.get_gold()}"
         await interaction.response.edit_message(embed=self.embed)
 
 

@@ -3,14 +3,16 @@ import discord
 from data.Cards import Cards
 import fbot
 
-import database.Player as Player
+from database.Player import Player
 
-p=Player.PlayerDatabase()
+import database.PlayerDB as PlayerDB
+
+p=PlayerDB.PlayerDatabase()
 
 
 class TradeAcceptView(discord.ui.View):
 
-    def __init__(self, inte: discord.Interaction, guild_id : int, list_cards_usr1 : list, id_user1 : int, list_cards_usr2 : list, id_user2 : int, embed_trade : discord.Embed) -> None:
+    def __init__(self, inte: discord.Interaction, guild_id : int, list_cards_usr1 : list, player1 : Player, list_cards_usr2 : list, player2 : Player, embed_trade : discord.Embed) -> None:
         super().__init__()
 
 
@@ -20,8 +22,12 @@ class TradeAcceptView(discord.ui.View):
 
         self.list_cards_usr1=list_cards_usr1
         self.list_cards_usr2=list_cards_usr2
-        self.id_user1=id_user1
-        self.id_user2=id_user2
+
+
+        self.player1=player1
+        self.player2=player2
+        self.id_user1=player1.user_id
+        self.id_user2=player2.user_id
         
         self.embed_trade=embed_trade
 
@@ -29,15 +35,17 @@ class TradeAcceptView(discord.ui.View):
         self.usr2_accepted=False
 
         for card in self.list_cards_usr1:
-            p.add_card(guild_id ,self.id_user1, card[0], -1*card[1])
+            player1.add_card(card[0], -1*card[1])
 
         for card in self.list_cards_usr2:
-            p.add_card(guild_id, self.id_user2, card[0], -1*card[1])
+            player2.add_card(card[0], -1*card[1])
 
     @discord.ui.button(label="Accepter", style=discord.ButtonStyle.green, custom_id="accept")
     async def accept(self, interaction: discord.Interaction, button: discord.ui.Button) -> None: # TODO : effacer les boutons à la fin de l'echange
+        print(self.id_user1,interaction.user.id)
         if interaction.user.id!=self.id_user1 and interaction.user.id!=self.id_user2:
             await interaction.response.defer()
+            print("Pas le bon utilisateur")
             return
         
         if interaction.user.id==self.id_user1:
@@ -57,10 +65,10 @@ class TradeAcceptView(discord.ui.View):
             self.embed_trade.color=discord.Color.green()
             await self.inte.edit_original_response(embed=self.embed_trade, view=None)
             for card in self.list_cards_usr1:
-                p.add_card(self.guild_id, self.id_user2, card[0], card[1])
+                self.player2.add_card(card[0], card[1])
             
             for card in self.list_cards_usr2:
-                p.add_card(self.guild_id,self.id_user1, card[0], card[1])
+                self.player1.add_card(card[0], card[1])
             await interaction.response.defer()
             self.stop()
         
@@ -81,10 +89,10 @@ class TradeAcceptView(discord.ui.View):
         await interaction.response.defer()
 
         for card in self.list_cards_usr1:
-            p.add_card(self.guild_id, self.id_user1, card[0], card[1])
+            self.player1.add_card(card[0], card[1])
 
         for card in self.list_cards_usr2:
-            p.add_card(self.guild_id, self.id_user2, card[0], card[1])
+            self.player2.add_card(card[0], card[1])
         self.stop()
 
 
@@ -96,10 +104,10 @@ class TradeAcceptView(discord.ui.View):
         self.usr1_accepted=False
         self.usr2_accepted=False
         for card in self.list_cards_usr1:
-            p.add_card(self.guild_id,self.id_user1, card[0], card[1])
+            self.player1.add_card(card[0], card[1])
 
         for card in self.list_cards_usr2:
-            p.add_card(self.guild_id, self.id_user2, card[0], card[1])
+            self.player2.add_card(card[0], card[1])
 
         self.embed_trade.set_footer(text="Annulé")
         self.embed_trade.color=discord.Color.red()

@@ -9,7 +9,9 @@ import time, json
 
 
 # --- Imports intern ---
-import database.Player as Player, fbot
+import database.PlayerDB as PlayerDB
+import fbot
+from database.Player import Player
 from Views.Collection import CollectionView
 from Views.Trade import TradeAcceptView
 from Views.Sell import SellView
@@ -19,7 +21,7 @@ from data.Cards import Cards
 
 
 
-p=Player.PlayerDatabase() # p -> base de donnee des joueurs
+p=PlayerDB.PlayerDatabase() # p -> base de donnee des joueurs
 
 intents = discord.Intents.all()
 
@@ -48,12 +50,6 @@ async def dr(inte : discord.Interaction):
     p.drop_table()
     await inte.response.send_message("done", ephemeral=True)
 
-@tree.command(name="testroll", description="test")
-async def tr(inte : discord.Interaction):
-    r=p.roll(inte.user.id, test=True)
-    await inte.response.send_message(embed=r if r else fbot.embed_wait(), ephemeral=r==None)
-
-
 @tree.command(name="testdb", description="test")
 async def tdb(inte : discord.Interaction):
     await inte.response.send_message(p.affiche(), ephemeral=True)
@@ -63,7 +59,8 @@ async def tdb(inte : discord.Interaction):
 # --- Cards ---
 @tree.command(name="roll", description="roll")
 async def roll(inte : discord.Interaction):
-    r=p.roll(inte.guild.id, inte.user.id)
+    player=Player(inte.guild.id, inte.user.id)
+    r=player.roll()
     await inte.response.send_message(embed=r if r else fbot.embed_wait(), ephemeral=r==None)
 
 
@@ -71,7 +68,8 @@ async def roll(inte : discord.Interaction):
 async def cl(inte : discord.Interaction, user : discord.User = None, show : bool = True):
     id_user = user.id if user!=None else inte.user.id
     p.affiche()
-    list_of_cards=p.list_of_cards(inte.guild.id, id_user)
+    player=Player(inte.guild.id, id_user)
+    list_of_cards=player.list_of_cards()
 
     if len(list_of_cards)==0:
         await inte.response.send_message(content="aucune carte", ephemeral=True)
@@ -88,15 +86,24 @@ async def cl(inte : discord.Interaction, id_card : int):
 
 @tree.command(name="trade", description="exemple de format de trade : 125|1&18|2 ('&' correspond a vide)")
 async def te(inte : discord.Interaction, user : discord.User, offre : str, demande : str):
-    trade_usr1=Cards.format_list_card(offre, p.get_player_data(inte.guild.id, inte.user.id).get("cards",{}))
-    trade_usr2=Cards.format_list_card(demande, p.get_player_data(inte.guild.id, user.id).get("cards",{}))    
+    """
+    """
+    player1=Player(inte.guild.id, inte.user.id)
+    player2=Player(inte.guild.id, user.id)
+
+    print("--", inte.user.id, user.id)
+
+    trade_usr1=Cards.format_list_card(offre, player1.data.get("cards",{}))
+    trade_usr2=Cards.format_list_card(demande, player2.data.get("cards",{}))  
+
+    print("---", player1.user_id, player2.user_id)
 
     emebed_trade=discord.Embed(title="Trade")
     emebed_trade.add_field(name=f"En attente de {inte.user.name}", value=Cards.formated_to_str(trade_usr1), inline=False)
     emebed_trade.add_field(name=f"En attente de {user.name}", value=Cards.formated_to_str(trade_usr2), inline=False)
-    print(Cards.formated_to_str(trade_usr1), Cards.formated_to_str(trade_usr2))
+    # print(Cards.formated_to_str(trade_usr1), Cards.formated_to_str(trade_usr2))
 
-    await inte.response.send_message(embed=emebed_trade, view=TradeAcceptView(inte, inte.guild.id, trade_usr1, inte.user.id, trade_usr2, user.id, emebed_trade))
+    await inte.response.send_message(embed=emebed_trade, view=TradeAcceptView(inte, inte.guild.id, trade_usr1, player1, trade_usr2, player2, emebed_trade))
 
 
 @tree.command(name="search", description="Search")
@@ -112,7 +119,9 @@ async def se(inte : discord.Interaction, name : str):
 
 @tree.command(name="sell", description="sell")
 async def sell(inte : discord.Interaction, offre : str):
-    formated_list=Cards.format_list_card(offre, p.get_player_data(inte.guild.id, inte.user.id).get("cards",{}))
+    player=Player(inte.guild.id, inte.user.id)
+
+    formated_list=Cards.format_list_card(offre, player.data.get("cards",{}))
 
     embed=discord.Embed(title="Vente")
 
@@ -126,12 +135,13 @@ async def sell(inte : discord.Interaction, offre : str):
     embed.add_field(name=f"Voulez vous vendre pour {value} gold{'s' if value>1 else ''}:", value=Cards.formated_to_str(formated_list), inline=False)
 
         # await inte.channel.send(f"J'ai vendu {quantity} {Cards.get_name(int(id_card))} pour {value} gold")
-    await inte.response.send_message(embed=embed, view=SellView(inte, inte.guild.id, inte.user.id, formated_list, value, embed))
+    await inte.response.send_message(embed=embed, view=SellView(inte, player, formated_list, value, embed))
 
 
 @tree.command(name="auto_sell", description="vendre automatiquement")
 async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : bool = True):
-    cards=p.get_player_data(inte.guild.id, inte.user.id).get("cards",{})
+    player=Player(inte.guild.id, inte.user.id)
+    cards=player.data.get("cards",{})
 
     quantity_to_keep=(1 if keep_one else 0)
 
@@ -141,11 +151,12 @@ async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : boo
         if quantity>quantity_to_keep and card_rarity <=rarity:
             quantity_to_sell=quantity-quantity_to_keep
             price=fbot.cost_per_rarity.get(Cards.get_rarity(int(id_card)).get("id"), 0)*(quantity_to_sell)
-            p.add_card(inte.guild.id, inte.user.id, id_card, -(quantity_to_sell))
+            player.add_card(id_card, -(quantity_to_sell))
 
             total_price+=price
 
-    p.add_gold(inte.guild.id, inte.user.id, total_price)
+    player.add_gold(total_price)
+
     await inte.response.send_message(f"J'ai vendu pour {total_price} gold{'s' if total_price>1 else ''}.", ephemeral=True)
 
 
@@ -158,17 +169,17 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
 
     if user==None: user=inte.user
 
-    data=p.get_player_data(inte.guild.id, user.id)
+    player=Player(inte.guild.id, user.id)
 
     try:
-        color=discord.Color.from_str(data.get("color","#000000"))
+        color=discord.Color.from_str(player.get_player_color())
     except:
         color=discord.Color.from_str("#000000")
 
     embed=discord.Embed(title=f"{user.global_name} ({user.name})", color=color)
     embed.set_thumbnail(url=user.display_avatar.url)
-    embed.add_field(name="💎 Level", value=f"{data.get("level",0)}", inline=True)
-    embed.add_field(name="🪙 Gold", value=f"{data.get("gold",0)}", inline=True)
+    embed.add_field(name="💎 Level", value=f"{player.get_lvl()}", inline=True)
+    embed.add_field(name="🪙 Gold", value=f"{player.get_gold()}", inline=True)
 
 
     await inte.response.send_message(embed=embed, ephemeral=not show)
@@ -176,15 +187,16 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
 
 @tree.command(name="change_color", description="Change la couleur du profil du joueur")
 async def change_color(inte : discord.Interaction, color : str):
-    p.set_player_color(inte.guild.id, inte.user.id, color)
+    Player(inte.guild.id, inte.user.id).set_player_color(color)
     await inte.response.send_message(f"Couleur changee en {color}", ephemeral=True)
 
 
 @tree.command(name="shop", description="Ouvrir le shop")
 async def shop(inte : discord.Interaction):
-    embed=fbot.embed_shop(p.get_lvl(inte.guild.id, inte.user.id), p.get_stock(inte.guild.id, inte.user.id), p.get_gold(inte.guild.id, inte.user.id))
+    player=Player(inte.guild.id, inte.user.id)
+    embed=fbot.embed_shop(player.get_lvl(), player.get_lvl(), player.get_gold())
     
-    await inte.response.send_message(embed=embed, ephemeral=True, view=ShopView(inte, inte.user.id, embed))
+    await inte.response.send_message(embed=embed, ephemeral=True, view=ShopView(inte, player, embed))
 
 
 # --- Help ---

@@ -1,6 +1,6 @@
 import discord
 
-from database.Player import PlayerDatabase
+from database.PlayerDB import PlayerDatabase
 
 from data.Cards import Cards
 

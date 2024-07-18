@@ -71,8 +71,8 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
     embed=discord.Embed(
         title="**Introduction**",
         color=discord.Color.dark_gold(),
-        description="Ce bot permet de roll et de collectionner des cartes du jeu Wankul. Pour commencer, utilisez `/roll`\n\
-            Par défaut, vous possédez 10 rolls par heure, ce qui peut être amélioré dans la boutique."
+        description=f"Ce bot permet de roll et de collectionner des cartes du jeu Wankul. Pour commencer, utilisez `/roll`\n\
+            Par défaut, vous possédez {default_nb_rolls} rolls par heure, ce qui peut être amélioré dans la boutique."
     )
 
     embeds.append(embed)
