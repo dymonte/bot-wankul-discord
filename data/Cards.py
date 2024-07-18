@@ -40,8 +40,12 @@ class Cards():
             if card.get("rarityId")==1:
                 embed.add_field(name="Effet victoire", value=f"{card.get('tWinningEffect','')}", inline=False)
                 embed.add_field(name="Effet défaite", value=f"{card.get('tLosingEffect','')}", inline=False)
-                embed.add_field(name="Effet sp\u00ecial", value=f"{card.get('tSpecialEffect','')}", inline=False)
+                embed.add_field(name="Effet sp\u00e9cial", value=f"{card.get('tSpecialEffect','')}", inline=False)
             
+            else:
+                embed.add_field(name="Règle", value=f"{card.get('rules','')}", inline=False)
+                if card.get("combo"): embed.add_field(name="Combo", value=f"{card.get('combo','')}", inline=False)
+                embed.add_field(name="Quote", value=f"{card.get('quote','')}", inline=False)
 
             embed.set_thumbnail(url=card["image"])
 

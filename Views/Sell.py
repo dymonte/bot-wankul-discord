@@ -13,9 +13,7 @@ class SellView(discord.ui.View):
         super().__init__()
 
         self.inte=inte
-
         self.value=value
-
         self.guild_id=guild_id
         self.id_user=id_user
         self.list_cards=list_cards
@@ -31,7 +29,7 @@ class SellView(discord.ui.View):
             await interaction.response.defer()
             return
         
-        p.add_money(self.guild_id, self.id_user, self.value)
+        p.add_gold(self.guild_id, self.id_user, self.value)
 
         self.embed.set_field_at(0,name=f"Vendue par {interaction.user.name} pour {self.value} gold{'s' if self.value>1 else ''}.", value=Cards.formated_to_str(self.list_cards), inline=False)
         self.embed.color=discord.Color.green()
@@ -50,7 +48,6 @@ class SellView(discord.ui.View):
         self.embed.set_field_at(0,name=f"Annulee par {interaction.user.name}", value=Cards.formated_to_str(self.list_cards), inline=False)
         self.embed.color=discord.Color.red()
         await self.inte.edit_original_response(embed=self.embed, view=None)
-        await interaction.response.defer()
         self.stop()
 
     async def on_timeout(self) -> None:

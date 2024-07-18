@@ -32,7 +32,7 @@ class PlayerDatabase(Database):
 
         player_data=guild_data.get("players",{}).get(str(id_user),{})
         if player_data=={}:
-            player_data={"last_roll":(0,0,0), "money":3000, "level":0, "color":"#ffffff", "number_of_rolls":0, "stock":5, "cards":{}}
+            player_data={"last_roll":(0,0,0), "gold":0, "level":0, "color":"#ffffff", "number_of_rolls":0, "stock":5, "cards":{}}
             self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user):player_data}})
         return player_data
     
@@ -44,7 +44,7 @@ class PlayerDatabase(Database):
 
         data=self.get_player_data(id_guild, id_user)
         if fbot.formated_date()==data.get("last_roll",(0,0,0)):
-            return data.get("number_of_rolls",0)<(data.get("level",1)+10) 
+            return data.get("number_of_rolls",0)<(data.get("level",1)+fbot.default_nb_rolls) 
         return True
 
 
@@ -61,14 +61,14 @@ class PlayerDatabase(Database):
             self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user)+".last_roll":fbot.formated_date()}}) # on met a jour l'heure
             self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user)+".number_of_rolls":1}}) # on reset le nombre de rolls
 
-            return (data.get("level",0)+10)-1
+            return (data.get("level",0)+fbot.default_nb_rolls)-1
     
-        if data.get("number_of_rolls",0)<(data.get("level",0)+10): # sinon si il reste des rolls
+        if data.get("number_of_rolls",0)<(data.get("level",0)+fbot.default_nb_rolls): # sinon si il reste des rolls
             self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".number_of_rolls":1}}) # on incremente le nombre de roll
-        return (data.get("level",0)+10)-(data.get("number_of_rolls",0)+1)
+        return (data.get("level",0)+fbot.default_nb_rolls)-(data.get("number_of_rolls",0)+1)
 
 
-    def roll(self, id_guild : int ,id_user : int) -> list[discord.Embed]: 
+    def roll(self, id_guild : int ,id_user : int) -> discord.Embed: 
         stock=self.get_stock(id_guild, id_user)
         can_roll=self.can_roll(id_guild, id_user)
         if not can_roll and stock==0: 
@@ -135,9 +135,9 @@ class PlayerDatabase(Database):
     def set_player_color(self, id_guild : int, id_user : int, color : str) -> None:
         self.players_table.update_one({"_id":str(id_guild)},{"$set":{"players."+str(id_user)+".color":color}})
 
-    def add_money(self, id_guild : int, id_user : int, amount : int) -> None:
+    def add_gold(self, id_guild : int, id_user : int, amount : int) -> None:
         self.get_player_data(id_guild, id_user)
-        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".money":amount}})
+        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".gold":amount}})
 
     def get_lvl(self, id_guild : int, id_user : int) -> int:
         return self.get_player_data(id_guild, id_user).get("level",0)
@@ -145,11 +145,11 @@ class PlayerDatabase(Database):
     def add_lvl(self, id_guild : int, id_user : int, amount : int = 1) -> None:
         self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".level":amount}})
 
-    def get_money(self, id_guild : int, id_user : int) -> int:
-        return self.get_player_data(id_guild, id_user).get("money",0)
+    def get_gold(self, id_guild : int, id_user : int) -> int:
+        return self.get_player_data(id_guild, id_user).get("gold",0)
     
-    def add_money(self, id_guild : int, id_user : int, amount : int) -> None:
-        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".money":amount}})
+    def add_gold(self, id_guild : int, id_user : int, amount : int) -> None:
+        self.players_table.update_one({"_id":str(id_guild)},{"$inc":{"players."+str(id_user)+".gold":amount}})
 
     def get_stock(self, id_guild : int, id_user : int) -> int:
         return self.get_player_data(id_guild, id_user).get("stock",0)
