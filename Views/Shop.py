@@ -28,9 +28,9 @@ class ShopView(discord.ui.View):
         player_level=self.player.get_lvl()
         player_gold=self.player.get_gold()
 
-        if player_level<fbot.maxLvl and p.get_gold(self.inte.guild.id, self.id_user)>=fbot.shop_prices["lvlUp"][player_level+1]:
-            p.add_gold(self.inte.guild.id, self.id_user, -1*fbot.shop_prices["lvlUp"][player_level+1])
-            p.add_lvl(self.inte.guild.id, self.id_user)
+        if player_level<fbot.maxLvl and self.player.get_gold()>=fbot.shop_prices["lvlUp"][player_level+1]:
+            self.player.add_gold(-1*fbot.shop_prices["lvlUp"][player_level+1])
+            self.player.add_lvl()
 
             player_level=self.player.get_lvl()
 
@@ -41,11 +41,11 @@ class ShopView(discord.ui.View):
 
             self.embed.set_footer(text="+1 level")
 
-        elif p.get_gold(self.inte.guild.id, self.id_user)<10:
-            self.embed.set_footer(text="Pas assez de gold")
+        elif player_level>=fbot.maxLvl:
+            self.embed.set_footer(text="LVL maximum atteint")
 
         else:
-            self.embed.set_footer(text="LVL maximum atteint")
+            self.embed.set_footer(text="Pas assez de gold")
 
         await interaction.response.edit_message(embed=self.embed)
 

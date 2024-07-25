@@ -123,7 +123,6 @@ async def sell(inte : discord.Interaction, offre : str):
 
     formated_list=Cards.format_list_card(offre, player.data.get("cards",{}))
 
-    embed=discord.Embed(title="Vente")
 
     value=0
 
@@ -132,10 +131,7 @@ async def sell(inte : discord.Interaction, offre : str):
 
         value+=fbot.cost_per_rarity.get(rarity, 0)*int(quantity)
     
-    embed.add_field(name=f"Voulez vous vendre pour {value} gold{'s' if value>1 else ''}:", value=Cards.formated_to_str(formated_list), inline=False)
-
-        # await inte.channel.send(f"J'ai vendu {quantity} {Cards.get_name(int(id_card))} pour {value} gold")
-    await inte.response.send_message(embed=embed, view=SellView(inte, player, formated_list, value, embed))
+    await send_sell_message(inte, player, formated_list, value)
 
 
 @tree.command(name="auto_sell", description="vendre automatiquement")
@@ -146,27 +142,36 @@ async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : boo
     quantity_to_keep=(1 if keep_one else 0)
 
     total_price=0
+
+
+    formated_list=[]
+
     for id_card, quantity in cards.items():
         card_rarity=Cards.get_rarity(int(id_card)).get("id")
         if quantity>quantity_to_keep and card_rarity <=rarity:
             quantity_to_sell=quantity-quantity_to_keep
-            price=fbot.cost_per_rarity.get(Cards.get_rarity(int(id_card)).get("id"), 0)*(quantity_to_sell)
-            player.add_card(id_card, -(quantity_to_sell))
+            formated_list.append((id_card, quantity_to_sell))
 
-            total_price+=price
+            total_price+=fbot.cost_per_rarity.get(Cards.get_rarity(int(id_card)).get("id"), 0)*(quantity_to_sell)
 
-    player.add_gold(total_price)
+    await send_sell_message(inte, player, formated_list, total_price)
 
-    await inte.response.send_message(f"J'ai vendu pour {total_price} gold{'s' if total_price>1 else ''}.", ephemeral=True)
+
+async def send_sell_message(inte : discord.Interaction, player : Player, formated_list : list, value : int) -> None:
+    """
+    Envoie l'embed de vente
+    """
+    embed=discord.Embed(title="Vente")
+
+    embed.add_field(name=f"Voulez vous vendre pour {value} gold{'s' if value>1 else ''}:", value=Cards.formated_to_str(formated_list), inline=False)
+
+    await inte.response.send_message(embed=embed, view=SellView(inte, player, formated_list, value, embed))
+
 
 
 # --- Player ---
 @tree.command(name="info_player", description="Affiche le profil du joueur")
 async def info_player(inte : discord.Interaction, user : discord.User = None, show : bool = True):
-    """
-    TODO : verifier que la couleur existe
-    """
-
     if user==None: user=inte.user
 
     player=Player(inte.guild.id, user.id)

@@ -6,6 +6,11 @@ import discord
 
 import fbot
 
+
+
+original_player_data={"last_roll":(0,0,0), "gold":100000, "level":2, "color":"#ffffff", "number_of_rolls":0, "stock":5, "cards":{}}
+
+
 class Player(PlayerDatabase):
 
     def __init__(self, guild_id : int, user_id : int) -> None:
@@ -30,7 +35,7 @@ class Player(PlayerDatabase):
 
         player_data=guild_data.get("players",{}).get(str(self.user_id),{})
         if player_data=={}:
-            player_data={"last_roll":(0,0,0), "gold":0, "level":0, "color":"#ffffff", "number_of_rolls":0, "stock":5, "cards":{}}
+            player_data=original_player_data
             self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id):player_data}})
         return player_data
     
