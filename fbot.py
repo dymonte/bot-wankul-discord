@@ -47,7 +47,7 @@ embed_error = discord.Embed(
 def embed_wait() -> discord.Embed:
     return discord.Embed(
         title="Pas de roll restants",
-        description=f"{60-time.localtime().tm_min} min avant de pouvoir roll",
+        description=f"Attendez {60-time.localtime().tm_min} min avant de pouvoir roll ou achetez-en dans le `/shop`.",
         color=discord.Color.dark_gold(),
     )
 
@@ -71,7 +71,7 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
     embed=discord.Embed(
         title="**Introduction**",
         color=discord.Color.dark_gold(),
-        description=f"Ce bot permet de roll et de collectionner des cartes du jeu Wankul. Pour commencer, utilisez `/roll`\n\
+        description=f"Ce bot permet de roll et de collectionner des cartes du jeu Wankul. Pour commencer, utilisez `/roll`.\n\
             Par défaut, vous possédez {default_nb_rolls} rolls par heure, ce qui peut être amélioré dans la boutique."
     )
 
@@ -108,11 +108,12 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
 
     embeds.append(embed)
 
-    embed=discord.Embed(
-        title="**Motifs**",
-        color=discord.Color.dark_gold(),
-        description="Les Motifs permettent de définir une liste de cartes. Par exemple, `420|1&32|2` correspond à une fois la carte numéro 420 et deux fois la carte numéro 32, laissez simplement `&` pour un trade vide"
-    )
+    if lang=="fr":
+        embed=discord.Embed(
+            title="**Motifs**",
+            color=discord.Color.dark_gold(),
+            description="Les Motifs permettent de définir une liste de cartes. Par exemple, `420|1&32|2` correspond à une fois la carte numéro 420 et deux fois la carte numéro 32, laissez simplement `&` pour un motif vide."
+        )
 
     embeds.append(embed)
 

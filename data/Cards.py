@@ -62,7 +62,6 @@ class Cards():
         return embed
     
 
-
     def random_card():
         rarities=Cards.get_rarities()[:9] # ne garde que jusqu'a la rarete gold
 

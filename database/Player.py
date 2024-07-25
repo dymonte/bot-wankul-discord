@@ -8,7 +8,7 @@ import fbot
 
 
 
-original_player_data={"last_roll":(0,0,0), "gold":100000, "level":2, "color":"#ffffff", "number_of_rolls":0, "stock":5, "cards":{}}
+original_player_data={"last_roll":(0,0,0), "gold":100000, "level":2, "color":"#ffffff", "number_of_rolls":0, "stock":5, "wish":0, "cards":{}}
 
 
 class Player(PlayerDatabase):
@@ -71,7 +71,7 @@ class Player(PlayerDatabase):
         stock=self.get_stock()
         can_roll=self.can_roll()
         if not can_roll and stock==0: 
-            return fbot.embed_wait()
+            return None
 
         elif can_roll:
             nb_remaining_roll=self.update_roll()

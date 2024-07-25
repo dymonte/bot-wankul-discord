@@ -61,7 +61,7 @@ async def tdb(inte : discord.Interaction):
 async def roll(inte : discord.Interaction):
     player=Player(inte.guild.id, inte.user.id)
     r=player.roll()
-    await inte.response.send_message(embed=r if r else fbot.embed_wait(), ephemeral=r==None)
+    await inte.response.send_message(embed=r if r else fbot.embed_wait(), ephemeral=r==None, delete_after=(7 if r==None else None))
 
 
 @tree.command(name="collection", description="list")
@@ -208,6 +208,6 @@ async def shop(inte : discord.Interaction):
 @tree.command(name="help", description="Aide")
 async def help(inte : discord.Interaction):
     embeds=fbot.embed_help()
-    await inte.response.send_message(embeds=embeds, ephemeral=True, delete_after=60)
+    await inte.response.send_message(embeds=embeds, ephemeral=True, delete_after=120)
 
 bot.run(fbot.DISCORD_TOKEN)
