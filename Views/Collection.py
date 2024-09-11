@@ -26,7 +26,7 @@ class CollectionView(discord.ui.View):
 
     async def refresh(self, interaction):
         if type(self.list[self.n])==int:
-            await interaction.response.edit_message(embed=Cards.get_embed_card(self.list[self.n]).set_footer(text=f"{self.n+1}/{len(self.list)}"))
+            await interaction.response.edit_message(embed=(await Cards.get_embed_card(self.list[self.n])).set_footer(text=f"{self.n+1}/{len(self.list)}"))
         else:
-            await interaction.response.edit_message(embed=Cards.get_embed_card(self.list[self.n][0], self.list[self.n][1]).set_footer(text=f"{self.n+1}/{len(self.list)}"))
+            await interaction.response.edit_message(embed=(await Cards.get_embed_card(self.list[self.n][0], self.list[self.n][1])).set_footer(text=f"{self.n+1}/{len(self.list)}"))
     

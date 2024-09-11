@@ -74,9 +74,9 @@ async def cl(inte : discord.Interaction, user : discord.User = None, show : bool
     if len(list_of_cards)==0:
         await inte.response.send_message(content="aucune carte", ephemeral=True)
     elif len(list_of_cards)==1:
-        await inte.response.send_message(ephemeral=not show, embed=Cards.get_embed_card(list_of_cards[0][0], list_of_cards[0][1]).set_footer(text="1/1"))
+        await inte.response.send_message(ephemeral=not show, embed=(await Cards.get_embed_card(list_of_cards[0][0], list_of_cards[0][1])).set_footer(text="1/1"))
     else:
-        await inte.response.send_message(ephemeral=not show, embed=Cards.get_embed_card(list_of_cards[0][0], list_of_cards[0][1]).set_footer(text=f"1/{len(list_of_cards)}"), view=CollectionView(list_of_cards))
+        await inte.response.send_message(ephemeral=not show, embed=(await Cards.get_embed_card(list_of_cards[0][0], list_of_cards[0][1])).set_footer(text=f"1/{len(list_of_cards)}"), view=CollectionView(list_of_cards))
 
 
 @tree.command(name="info_card", description="Informations sur une carte")
@@ -99,8 +99,8 @@ async def te(inte : discord.Interaction, user : discord.User, offre : str, deman
     print("---", player1.user_id, player2.user_id)
 
     emebed_trade=discord.Embed(title="Trade")
-    emebed_trade.add_field(name=f"En attente de {inte.user.name}", value=Cards.formated_to_str(trade_usr1), inline=False)
-    emebed_trade.add_field(name=f"En attente de {user.name}", value=Cards.formated_to_str(trade_usr2), inline=False)
+    emebed_trade.add_field(name=f"En attente de {inte.user.name}", value=await Cards.formated_to_str(trade_usr1), inline=False)
+    emebed_trade.add_field(name=f"En attente de {user.name}", value=await Cards.formated_to_str(trade_usr2), inline=False)
     # print(Cards.formated_to_str(trade_usr1), Cards.formated_to_str(trade_usr2))
 
     await inte.response.send_message(embed=emebed_trade, view=TradeAcceptView(inte, inte.guild.id, trade_usr1, player1, trade_usr2, player2, emebed_trade))

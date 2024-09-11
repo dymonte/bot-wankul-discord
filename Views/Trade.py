@@ -50,13 +50,13 @@ class TradeAcceptView(discord.ui.View):
         
         if interaction.user.id==self.id_user1:
             self.usr1_accepted=True
-            self.embed_trade.set_field_at(0,name=f"Accepté par {interaction.user.name}", value=Cards.formated_to_str(self.list_cards_usr1), inline=False)
+            self.embed_trade.set_field_at(0,name=f"Accepté par {interaction.user.name}", value=await Cards.formated_to_str(self.list_cards_usr1), inline=False)
             await self.inte.edit_original_response(embed=self.embed_trade)
             await interaction.response.defer()
 
         else:
             self.usr2_accepted=True
-            self.embed_trade.set_field_at(1,name=f"Accepté par {interaction.user.name}", value=Cards.formated_to_str(self.list_cards_usr2), inline=False)
+            self.embed_trade.set_field_at(1,name=f"Accepté par {interaction.user.name}", value=await Cards.formated_to_str(self.list_cards_usr2), inline=False)
             await self.inte.edit_original_response(embed=self.embed_trade)
             interaction.response.defer()
 
