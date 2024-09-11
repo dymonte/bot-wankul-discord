@@ -67,7 +67,7 @@ class Player(PlayerDatabase):
         return (self.data.get("level",0)+fbot.default_nb_rolls)-(self.data.get("number_of_rolls",0)+1)
 
 
-    def roll(self) -> discord.Embed: 
+    async def roll(self) -> discord.Embed: 
         stock=self.get_stock()
         can_roll=self.can_roll()
         if not can_roll and stock==0: 
@@ -80,11 +80,11 @@ class Player(PlayerDatabase):
             self.add_stock(-1)
             nb_remaining_roll=0
 
-        rolled=Cards.random_card()
+        rolled=await Cards.random_card()
 
         self.add_card(rolled["id"])
 
-        embed=Cards.get_embed_card(rolled["id"]).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{self.get_stock()} en stock)" if self.get_stock()>0 else ""))
+        embed=(await Cards.get_embed_card(rolled["id"])).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{self.get_stock()} en stock)" if self.get_stock()>0 else ""))
 
         return embed
     

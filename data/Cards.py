@@ -1,4 +1,6 @@
-import requests, json, discord, random
+import json, discord, random
+
+import aiohttp
 
 with open("config.json", "r") as f:
     url = json.load(f).get("API_URL", "http://localhost:3000")
@@ -8,26 +10,39 @@ with open("config.json", "r") as f:
 
 class Cards():
 
-    def get_all_cards():
-        return requests.request("GET",url+"/v1/card").json()
-    
-    def get_cards_by_rarity(rarity):
-        return requests.request("GET",url+f"/v1/rarity/{rarity}/list").json()
-    
-    def get_rarities():
-        return requests.request("GET",url+"/v1/rarity").json()
+    async def get_all_cards():
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url+"/v1/card/list") as resp:
+                return await resp.json()
 
-    def get_card(id_card):
-        return requests.request("GET",url+"/v1/card/"+str(id_card)).json()
+    async def get_cards_by_rarity(rarity):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url+"/v1/rarity/"+str(rarity)+"/list") as resp:
+                return await resp.json()
     
-    def get_rarity(id_card):
-        return requests.request("GET",url+"/v1/card/"+str(id_card)+"/rarity").json()
-    
-    def get_name(id_card):
-        return requests.request("GET",url+"/v1/card/"+str(id_card)+"/name").json()
+    async def get_rarities():
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url+"/v1/rarity") as resp:
+                return await resp.json()
 
-    def get_embed_card(id_card : int, quantity : int = 0, detailed : bool = False)->discord.Embed:
-        card=Cards.get_card(id_card)
+    async def get_card(id_card):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url+"/v1/card/"+str(id_card)) as resp:
+                return await resp.json()
+
+    
+    async def get_rarity(id_card):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url+"/v1/card/"+str(id_card)+"/rarity") as resp:
+                return await resp.json()
+
+    async def get_name(id_card):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url+"/v1/card/"+str(id_card)+"/name") as resp:
+                return await resp.json()
+
+    async def get_embed_card(id_card : int, quantity : int = 0, detailed : bool = False)->discord.Embed:
+        card=await Cards.get_card(id_card)
 
         if detailed:
             embed = discord.Embed(
@@ -62,12 +77,13 @@ class Cards():
         return embed
     
 
-    def random_card():
-        rarities=Cards.get_rarities()[:9] # ne garde que jusqu'a la rarete gold
+    async def random_card():
+        rarities=await Cards.get_rarities()
+        rarities=rarities[:9] # ne garde que jusqu'a la rarete gold
 
         rarity=random.choices(rarities, [float(i.get("txDrop",0).replace("%","")) for i in rarities], k=1)[0]
 
-        card=random.choice(Cards.get_cards_by_rarity(rarity["id"]))
+        card=random.choice(await Cards.get_cards_by_rarity(rarity["id"]))
         return card
 
     
@@ -92,10 +108,10 @@ class Cards():
     
 
 
-    def formated_to_str(l : list)->str:
+    async def formated_to_str(l : list)->str:
         res=""
         for e in l:
-            res+=f"{Cards.get_name(e[0])}({Cards.get_rarity(e[0]).get('accronym','')})x{e[1]}  "
+            res+=f"{await Cards.get_name(e[0])}({await Cards.get_rarity(e[0]).get('accronym','')})x{e[1]}  "
         return res
 
 

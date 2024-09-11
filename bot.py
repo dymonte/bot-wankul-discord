@@ -60,7 +60,7 @@ async def tdb(inte : discord.Interaction):
 @tree.command(name="roll", description="roll")
 async def roll(inte : discord.Interaction):
     player=Player(inte.guild.id, inte.user.id)
-    r=player.roll()
+    r=await player.roll()
     await inte.response.send_message(embed=r if r else fbot.embed_wait(), ephemeral=r==None, delete_after=(7 if r==None else None))
 
 
@@ -81,7 +81,7 @@ async def cl(inte : discord.Interaction, user : discord.User = None, show : bool
 
 @tree.command(name="info_card", description="Informations sur une carte")
 async def cl(inte : discord.Interaction, id_card : int):
-    await inte.response.send_message(embed=Cards.get_embed_card(id_card, detailed=True), ephemeral=True)
+    await inte.response.send_message(embed=await Cards.get_embed_card(id_card, detailed=True), ephemeral=True)
 
 
 @tree.command(name="trade", description="exemple de format de trade : 125|1&18|2 ('&' correspond a vide)")
@@ -147,12 +147,12 @@ async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : boo
     formated_list=[]
 
     for id_card, quantity in cards.items():
-        card_rarity=Cards.get_rarity(int(id_card)).get("id")
+        card_rarity=(await Cards.get_rarity(int(id_card))).get("id")
         if quantity>quantity_to_keep and card_rarity <=rarity:
             quantity_to_sell=quantity-quantity_to_keep
             formated_list.append((id_card, quantity_to_sell))
 
-            total_price+=fbot.cost_per_rarity.get(Cards.get_rarity(int(id_card)).get("id"), 0)*(quantity_to_sell)
+            total_price+=fbot.cost_per_rarity.get((await Cards.get_rarity(int(id_card))).get("id"), 0)*(quantity_to_sell)
 
     await send_sell_message(inte, player, formated_list, total_price)
 
@@ -163,7 +163,7 @@ async def send_sell_message(inte : discord.Interaction, player : Player, formate
     """
     embed=discord.Embed(title="Vente")
 
-    embed.add_field(name=f"Voulez vous vendre pour {value} gold{'s' if value>1 else ''}:", value=Cards.formated_to_str(formated_list), inline=False)
+    embed.add_field(name=f"Voulez vous vendre pour {value} gold{'s' if value>1 else ''}:", value=await Cards.formated_to_str(formated_list), inline=False)
 
     await inte.response.send_message(embed=embed, view=SellView(inte, player, formated_list, value, embed))
 
@@ -199,7 +199,7 @@ async def change_color(inte : discord.Interaction, color : str):
 @tree.command(name="shop", description="Ouvrir le shop")
 async def shop(inte : discord.Interaction):
     player=Player(inte.guild.id, inte.user.id)
-    embed=fbot.embed_shop(player.get_lvl(), player.get_lvl(), player.get_gold())
+    embed=fbot.embed_shop(player.get_lvl(), player.get_stock(), player.get_gold())
     
     await inte.response.send_message(embed=embed, ephemeral=True, view=ShopView(inte, player, embed))
 
