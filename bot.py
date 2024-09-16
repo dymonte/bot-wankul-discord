@@ -108,7 +108,7 @@ async def te(inte : discord.Interaction, user : discord.User, offre : str, deman
 
 @tree.command(name="search", description="Search")
 async def se(inte : discord.Interaction, name : str):
-    list_search=Cards.search(name)
+    list_search=await Cards.search(name)
     if len(list_search)==0:
         await inte.response.send_message(content="aucune carte", ephemeral=True, delete_after=5)
     elif len(list_search)==1:
@@ -122,7 +122,6 @@ async def sell(inte : discord.Interaction, offre : str):
     player=Player(inte.guild.id, inte.user.id)
 
     formated_list=Cards.format_list_card(offre, player.data.get("cards",{}))
-
 
     value=0
 
@@ -209,5 +208,14 @@ async def shop(inte : discord.Interaction):
 async def help(inte : discord.Interaction):
     embeds=fbot.embed_help()
     await inte.response.send_message(embeds=embeds, ephemeral=True, delete_after=120)
+
+@tree.command(name="wish", description="Définit un nouveau wish ou affiche l'actuel")
+async def wish(inte : discord.Interaction, w : int = 0):
+    player=Player(inte.guild.id, inte.user.id)
+    if w==0:
+        await inte.response.send_message(f"Votre wish actuel est {player.get_wish()}")
+    else:
+        player.set_wish(w)
+        await inte.response.send_message(f"Votre wish est maintenant {w}")
 
 bot.run(fbot.DISCORD_TOKEN)

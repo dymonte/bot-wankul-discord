@@ -1,5 +1,7 @@
 import json, discord, random
 
+import fbot
+
 import aiohttp
 
 with open("config.json", "r") as f:
@@ -88,10 +90,12 @@ class Cards():
 
     
 
-    def search(name : str)->list:
-        cards= Cards.get_all_cards()
+    async def search(name : str)->list:
+        cards=await Cards.get_all_cards()
 
-        return [card["id"] for card in cards if name.lower().replace("é","e").replace("à","a") in card["name"].lower().replace("é","e").replace("à","a")]
+        print(cards)
+
+        return [card["id"] for card in cards if fbot.format_str_search(name) in fbot.format_str_search(card["name"])]
     
 
 
@@ -109,28 +113,17 @@ class Cards():
 
 
     async def formated_to_str(l : list)->str:
+        """
+        l : la liste des cartes sous forme [[122,2],[384,1]]
+        retourne sous la forme d'une str: "name(raity)xquantity  name(raity)xquantity"
+        """
         res=""
         for e in l:
-            res+=f"{await Cards.get_name(e[0])}({await Cards.get_rarity(e[0]).get('accronym','')})x{e[1]}  "
+            res+=f"{await Cards.get_name(e[0])}({(await Cards.get_rarity(e[0])).get('accronym','')})x{e[1]}  "
         return res
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 if __name__ == "__main__":
     for i in range(100):
         print(i, Cards.random_card()["rarity"]["name"]) #Cards.random_card()
-
-    print('\u00e9')
-    # # print((0,1)==[0,1])
-    # pass

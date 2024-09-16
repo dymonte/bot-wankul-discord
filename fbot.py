@@ -120,6 +120,10 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
     return embeds
 
 
+def format_str_search(name : str) -> str:
+    return name.lower().replace("é","e").replace("à","a")
+
+
 
 if __name__ == "__main__":
     print(formated_date())

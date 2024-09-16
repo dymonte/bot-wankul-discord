@@ -1,9 +1,7 @@
 import pymongo 
 
 class Database:
-    
     def __init__(self):
-
         self.client = pymongo.MongoClient("localhost", 27017)
         
         self.db=self.client["botWankul"]

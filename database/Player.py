@@ -84,7 +84,12 @@ class Player(PlayerDatabase):
 
         self.add_card(rolled["id"])
 
-        embed=(await Cards.get_embed_card(rolled["id"])).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{self.get_stock()} en stock)" if self.get_stock()>0 else ""))
+        embed=(await Cards.get_embed_card(rolled["id"])).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{self.get_stock()} en stock)" if self.get_stock()>0 else "")) # affiche le nombre de rolls restants et le stock au bas de l'embed
+
+        if rolled["id"]==self.get_wish():
+            earning=int(100*fbot.cost_per_rarity.get(rolled.get("rarity",{}).get("id",0),0))
+            embed.add_field(name="Wish gagné", value=f"+ {earning} 🪙", inline=False)
+            self.add_gold(earning)
 
         return embed
     
@@ -138,3 +143,10 @@ class Player(PlayerDatabase):
     def add_stock(self, amount : int) -> None:
         self.data["stock"]+=amount
         self.players_table.update_one({"_id":str(self.guild_id)},{"$inc":{"players."+str(self.user_id)+".stock":amount}})
+
+    def get_wish(self) -> int:
+        return self.data.get("wish",0)
+
+    def set_wish(self, id_card : int) -> None:
+        self.data["wish"]=id_card
+        self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".wish":id_card}})

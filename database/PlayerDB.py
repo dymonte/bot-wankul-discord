@@ -10,20 +10,12 @@ class PlayerDatabase(Database):
         super().__init__()
         self.players_table=self.db["players"]
 
-        
-
-
     def drop_table(self) -> None:
         """
         Supprime la table players
         TODO : Supprimer uniquement pour le serveur en question
         """
         self.players_table.drop()
-
-
-    
-
-
 
     def affiche(self) -> list:
         """
@@ -32,5 +24,3 @@ class PlayerDatabase(Database):
         for i in self.players_table.find():
             print(i)
         return [i for i in self.players_table.find()]
-    
-
