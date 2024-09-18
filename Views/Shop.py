@@ -13,6 +13,13 @@ p=PlayerDB.PlayerDatabase()
 
 
 class ShopView(discord.ui.View):
+    """
+    Gere la vue du magasin
+
+    inte : l'intéraction de la commande
+    player : le joueur
+    embed : l'embed par defaut
+    """
 
     def __init__(self, inte: discord.Interaction, player : Player, embed : discord.Embed):
         super().__init__()

@@ -48,13 +48,13 @@ class Cards():
 
         if detailed:
             embed = discord.Embed(
-                title=f"{card.get('title','-')} "+(""if quantity==0 else f" *({quantity}x)*"),
+                title=f"**{card.get('title','-')}** "+(""if quantity==0 else f" *({quantity}x)*"),
                 description=f"**#{id_card}**\n{card.get('rarity', {}).get('name','')}\n{card.get('description','')}\n",
                 color=discord.Colour.from_str(card.get("season", {}).get("color", "#000000")),
             )
 
 
-            if card.get("rarityId")==1:
+            if card.get("rarityId",1)==1:
                 embed.add_field(name="Effet victoire", value=f"{card.get('tWinningEffect','')}", inline=False)
                 embed.add_field(name="Effet défaite", value=f"{card.get('tLosingEffect','')}", inline=False)
                 embed.add_field(name="Effet sp\u00e9cial", value=f"{card.get('tSpecialEffect','')}", inline=False)
@@ -67,9 +67,10 @@ class Cards():
             embed.set_thumbnail(url=card["image"])
 
             embed.set_footer(text=f"Par {card.get('artist',{}).get('name','')}")
+
         else:
             embed = discord.Embed(
-                title=f"{card.get('title','-')} "+(""if quantity==0 else f" *({quantity}x)*"),
+                title=f"**{card.get('title','-')}** "+(""if quantity==0 else f" *({quantity}x)*"),
                 description=f"**#{id_card}**\n{card.get("rarity", {}).get('accronym','')}",
                 color=discord.Colour.from_str(card.get("season", {}).get("color", "#000000")),
             )
@@ -92,8 +93,6 @@ class Cards():
 
     async def search(name : str)->list:
         cards=await Cards.get_all_cards()
-
-        print(cards)
 
         return [card["id"] for card in cards if fbot.format_str_search(name) in fbot.format_str_search(card["name"])]
     

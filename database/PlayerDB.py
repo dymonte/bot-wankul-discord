@@ -17,7 +17,7 @@ class PlayerDatabase(Database):
         """
         self.players_table.drop()
 
-    def affiche(self) -> list:
+    def debug_affiche(self) -> list:
         """
         Affiche et renvoie la base de donnée sour forme de liste
         """

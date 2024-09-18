@@ -52,7 +52,7 @@ async def dr(inte : discord.Interaction):
 
 @tree.command(name="testdb", description="test")
 async def tdb(inte : discord.Interaction):
-    await inte.response.send_message(p.affiche(), ephemeral=True)
+    await inte.response.send_message(p.debug_affiche(), ephemeral=True)
 
 
 
@@ -67,7 +67,6 @@ async def roll(inte : discord.Interaction):
 @tree.command(name="collection", description="list")
 async def cl(inte : discord.Interaction, user : discord.User = None, show : bool = True):
     id_user = user.id if user!=None else inte.user.id
-    p.affiche()
     player=Player(inte.guild.id, id_user)
     list_of_cards=player.list_of_cards()
 
@@ -80,28 +79,27 @@ async def cl(inte : discord.Interaction, user : discord.User = None, show : bool
 
 
 @tree.command(name="info_card", description="Informations sur une carte")
-async def cl(inte : discord.Interaction, id_card : int):
-    await inte.response.send_message(embed=await Cards.get_embed_card(id_card, detailed=True), ephemeral=True)
+async def cl(inte : discord.Interaction, id_card : int, show : bool = True):
+    # id_user = user.id if user!=None else inte.user.id
+    player=Player(inte.guild.id, inte.user.id)
+
+    await inte.response.send_message(embed=await Cards.get_embed_card(id_card,quantity=player.data.get("cards",{}).get(str(id_card),0) ,detailed=True), ephemeral=not show)
 
 
 @tree.command(name="trade", description="exemple de format de trade : 125|1&18|2 ('&' correspond a vide)")
 async def te(inte : discord.Interaction, user : discord.User, offre : str, demande : str):
     """
+    TODO : pouvoir échanger de l'argent avec
     """
     player1=Player(inte.guild.id, inte.user.id)
     player2=Player(inte.guild.id, user.id)
 
-    print("--", inte.user.id, user.id)
-
     trade_usr1=Cards.format_list_card(offre, player1.data.get("cards",{}))
     trade_usr2=Cards.format_list_card(demande, player2.data.get("cards",{}))  
-
-    print("---", player1.user_id, player2.user_id)
 
     emebed_trade=discord.Embed(title="Trade")
     emebed_trade.add_field(name=f"En attente de {inte.user.name}", value=await Cards.formated_to_str(trade_usr1), inline=False)
     emebed_trade.add_field(name=f"En attente de {user.name}", value=await Cards.formated_to_str(trade_usr2), inline=False)
-    # print(Cards.formated_to_str(trade_usr1), Cards.formated_to_str(trade_usr2))
 
     await inte.response.send_message(embed=emebed_trade, view=TradeAcceptView(inte, inte.guild.id, trade_usr1, player1, trade_usr2, player2, emebed_trade))
 
@@ -126,14 +124,14 @@ async def sell(inte : discord.Interaction, offre : str):
     value=0
 
     for id_card, quantity in formated_list:
-        rarity=Cards.get_rarity(int(id_card)).get("id")
+        rarity=(await Cards.get_rarity(int(id_card))).get("id")
 
         value+=fbot.cost_per_rarity.get(rarity, 0)*int(quantity)
     
     await send_sell_message(inte, player, formated_list, value)
 
 
-@tree.command(name="auto_sell", description="vendre automatiquement")
+@tree.command(name="auto_sell", description="vendre automatiquement (max 30 cartes)")
 async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : bool = True):
     player=Player(inte.guild.id, inte.user.id)
     cards=player.data.get("cards",{})
@@ -146,6 +144,8 @@ async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : boo
     formated_list=[]
 
     for id_card, quantity in cards.items():
+        if len(formated_list)>=30:
+            break
         card_rarity=(await Cards.get_rarity(int(id_card))).get("id")
         if quantity>quantity_to_keep and card_rarity <=rarity:
             quantity_to_sell=quantity-quantity_to_keep
@@ -153,7 +153,8 @@ async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : boo
 
             total_price+=fbot.cost_per_rarity.get((await Cards.get_rarity(int(id_card))).get("id"), 0)*(quantity_to_sell)
 
-    await send_sell_message(inte, player, formated_list, total_price)
+    if len(formated_list)>0: await send_sell_message(inte, player, formated_list, total_price)
+    else : await inte.response.send_message(content="aucune carte", ephemeral=True, delete_after=5)
 
 
 async def send_sell_message(inte : discord.Interaction, player : Player, formated_list : list, value : int) -> None:

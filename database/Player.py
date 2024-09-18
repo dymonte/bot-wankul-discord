@@ -150,3 +150,7 @@ class Player(PlayerDatabase):
     def set_wish(self, id_card : int) -> None:
         self.data["wish"]=id_card
         self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".wish":id_card}})
+    
+    def has(self, id_card : int, quantity : int) -> bool:
+        self.data=self.get_player_data()
+        return self.data.get("cards",{}).get(str(id_card),0)>=quantity
