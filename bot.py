@@ -5,7 +5,6 @@ from discord import app_commands
 
 
 # --- Imports extern ---
-import time, json
 
 
 # --- Imports intern ---
@@ -47,7 +46,7 @@ async def dr(inte : discord.Interaction):
     """
     TODO
     """
-    p.drop_table()
+    p.drop_table(inte.guild.id)
     await inte.response.send_message("done", ephemeral=True)
 
 @tree.command(name="testdb", description="test")
@@ -83,43 +82,49 @@ async def cl(inte : discord.Interaction, id_card : int, show : bool = True):
     # id_user = user.id if user!=None else inte.user.id
     player=Player(inte.guild.id, inte.user.id)
 
-    await inte.response.send_message(embed=await Cards.get_embed_card(id_card,quantity=player.data.get("cards",{}).get(str(id_card),0) ,detailed=True), ephemeral=not show)
+    emb=await Cards.get_embed_card(id_card,quantity=player.data.get("cards",{}).get(str(id_card),0) ,detailed=True)
+
+    await inte.response.send_message(embed=emb if emb != None else discord.Embed(title="Carte introuvable", color=discord.Color.red()), ephemeral=not show or emb==None, delete_after=(5 if emb==None else None))
 
 
-@tree.command(name="trade", description="exemple de format de trade : 125|1&18|2 ('&' correspond a vide)")
+@tree.command(name="trade", description="exemple de format de trade : \"125|1&18|2 10g\" ('&' correspond a vide)")
 async def te(inte : discord.Interaction, user : discord.User, offre : str, demande : str):
     """
-    TODO : pouvoir échanger de l'argent avec
+    TODO : gerer les cas de motifs invalides
     """
     player1=Player(inte.guild.id, inte.user.id)
     player2=Player(inte.guild.id, user.id)
 
-    trade_usr1=Cards.format_list_card(offre, player1.data.get("cards",{}))
-    trade_usr2=Cards.format_list_card(demande, player2.data.get("cards",{}))  
+    trade_usr1,money_usr1=Cards.format_list_card(offre, player1.data.get("cards",{}), player1.get_gold())
+    trade_usr2,money_usr2=Cards.format_list_card(demande, player2.data.get("cards",{}), player2.get_gold())
 
     emebed_trade=discord.Embed(title="Trade")
-    emebed_trade.add_field(name=f"En attente de {inte.user.name}", value=await Cards.formated_to_str(trade_usr1), inline=False)
-    emebed_trade.add_field(name=f"En attente de {user.name}", value=await Cards.formated_to_str(trade_usr2), inline=False)
 
-    await inte.response.send_message(embed=emebed_trade, view=TradeAcceptView(inte, inte.guild.id, trade_usr1, player1, trade_usr2, player2, emebed_trade))
+    format1=await Cards.formated_to_str(trade_usr1)
+    format2=await Cards.formated_to_str(trade_usr2)
+    emebed_trade.add_field(name=f"En attente de {inte.user.name}", value=f"{format1 if format1!="" else "(vide)"} + {money_usr1} 🪙", inline=False)
+    emebed_trade.add_field(name=f"En attente de {user.name}", value=f"{format2 if format2!="" else "(vide)"} + {money_usr2} 🪙", inline=False)
+
+    await inte.response.send_message(embed=emebed_trade, view=TradeAcceptView(inte, inte.guild.id, trade_usr1, money_usr1, player1, trade_usr2, money_usr2, player2, emebed_trade))
 
 
 @tree.command(name="search", description="Search")
 async def se(inte : discord.Interaction, name : str):
     list_search=await Cards.search(name)
     if len(list_search)==0:
-        await inte.response.send_message(content="aucune carte", ephemeral=True, delete_after=5)
+        await inte.response.send_message(embed=discord.Embed(title="Aucun résultat", color=discord.Color.red()), ephemeral=True, delete_after=5)
     elif len(list_search)==1:
-        await inte.response.send_message(ephemeral=True, embed=Cards.get_embed_card(list_search[0]).set_footer(text="1/1"))
+        await inte.response.send_message(ephemeral=True, embed=(await Cards.get_embed_card(list_search[0])).set_footer(text="1/1"))
     else:
-        await inte.response.send_message(embed=Cards.get_embed_card(list_search[0]).set_footer(text=f"1/{len(list_search)}"), ephemeral=True, view=CollectionView(Cards.search(name)))
+        await inte.response.send_message(embed=(await Cards.get_embed_card(list_search[0])).set_footer(text=f"1/{len(list_search)}"), ephemeral=True, view=CollectionView(list_search))
 
 
 @tree.command(name="sell", description="sell")
 async def sell(inte : discord.Interaction, offre : str):
     player=Player(inte.guild.id, inte.user.id)
 
-    formated_list=Cards.format_list_card(offre, player.data.get("cards",{}))
+    formated_list=Cards.format_list_card(offre, player.data.get("cards",{}))[0]
+    
 
     value=0
 
@@ -185,6 +190,9 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
     embed.set_thumbnail(url=user.display_avatar.url)
     embed.add_field(name="💎 Level", value=f"{player.get_lvl()}", inline=True)
     embed.add_field(name="🪙 Gold", value=f"{player.get_gold()}", inline=True)
+    embed.add_field(name="", value="", inline=False)
+    embed.add_field(name="📦 Stock", value=f"{player.get_stock()}", inline=True)
+    embed.add_field(name="✨ Wish", value=f"{player.get_wish()}", inline=True)
 
 
     await inte.response.send_message(embed=embed, ephemeral=not show)
@@ -192,7 +200,9 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
 
 @tree.command(name="change_color", description="Change la couleur du profil du joueur")
 async def change_color(inte : discord.Interaction, color : str):
+    
     Player(inte.guild.id, inte.user.id).set_player_color(color)
+    if "#" not in color: color=f"#{color}" #discord n'autorise qu'avec # au debut
     await inte.response.send_message(f"Couleur changee en {color}", ephemeral=True)
 
 

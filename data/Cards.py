@@ -4,17 +4,14 @@ import fbot
 
 import aiohttp
 
-with open("config.json", "r") as f:
-    url = json.load(f).get("API_URL", "http://localhost:3000")
-
-
+url=fbot.API_URL
 
 
 class Cards():
 
     async def get_all_cards():
         async with aiohttp.ClientSession() as session:
-            async with session.get(url+"/v1/card/list") as resp:
+            async with session.get(url+"/v1/card/") as resp:
                 return await resp.json()
 
     async def get_cards_by_rarity(rarity):
@@ -30,6 +27,8 @@ class Cards():
     async def get_card(id_card):
         async with aiohttp.ClientSession() as session:
             async with session.get(url+"/v1/card/"+str(id_card)) as resp:
+                if resp.status!=200:
+                    return None
                 return await resp.json()
 
     
@@ -45,6 +44,8 @@ class Cards():
 
     async def get_embed_card(id_card : int, quantity : int = 0, detailed : bool = False)->discord.Embed:
         card=await Cards.get_card(id_card)
+
+        if card==None: return None
 
         if detailed:
             embed = discord.Embed(
@@ -98,17 +99,31 @@ class Cards():
     
 
 
-    def format_list_card(l : str, cards : dict)-> list:# exemple [[122,2],[384,1]] sans prendre en compte les cartes non possédées ou en trop faible quantité
+    def format_list_card(l : str, cards : dict, gold : int=0)-> list:# exemple [[122,2],[384,1]] sans prendre en compte les cartes non possedees ou en trop faible quantite
         """
-        l : la liste des cartes sous forme 122|2&384|1
-        cards : le dictionnaire des cartes possédées par le joueur
+        l : la liste des cartes sous forme "122|2&384|1 10g"
+        cards : le dictionnaire des cartes possedees par le joueur (verfication si il les possede)
+        gold : le nombre de gold du joueur (verfication si il en possede assez)
+
+        -> la liste des cartes sous forme [[122,2],[384,1]] ainsi que l'argent que le joueur propose
         """
 
-        print(cards)
+        try:
 
-        all_cards=[[int(e) for e in i.split("|") if e!=""] for i in l.split("&") if i!=""] # mise sous forme de liste de la chaine de caractere
-        return [e for e in all_cards if cards.get(str(e[0]),0)>=e[1] or e==''] # ne garde que les cartes possedees en assez grande quantite
-    
+            money=0
+            
+            l=l.split(" ")
+            if len(l)==2 and "g" in l[1]: 
+                tmp=l[1].replace("g","")
+                money=int(tmp) if gold>=int(tmp) else gold
+            
+            l=l[0]
+
+            all_cards=[[e for e in i.split("|") if e!=""] for i in l.split("&") if i!=""] # mise sous forme de liste de la chaine de caractere
+            
+            return [(int(i),int(j)) for i,j in all_cards if cards.get(str(i),0)>=int(j)], money # ne garde que les cartes possedees en assez grande quantite
+        except:
+            return [], 0
 
 
     async def formated_to_str(l : list)->str:

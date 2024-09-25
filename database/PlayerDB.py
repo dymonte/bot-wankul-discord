@@ -10,12 +10,12 @@ class PlayerDatabase(Database):
         super().__init__()
         self.players_table=self.db["players"]
 
-    def drop_table(self) -> None:
+    def drop_table(self,guild_id : int) -> None:
         """
         Supprime la table players
         TODO : Supprimer uniquement pour le serveur en question
         """
-        self.players_table.drop()
+        self.players_table.delete_one({"_id":str(guild_id)})
 
     def debug_affiche(self) -> list:
         """

@@ -8,7 +8,7 @@ import fbot
 
 
 
-original_player_data={"last_roll":(0,0,0), "gold":100000, "level":2, "color":"#ffffff", "number_of_rolls":0, "stock":5, "wish":0, "cards":{}}
+original_player_data={"last_roll":(0,0,0), "gold":100000, "level":0, "color":"#ffffff", "number_of_rolls":0, "stock":5, "wish":0, "cards":{}}
 
 
 class Player(PlayerDatabase):
@@ -19,7 +19,7 @@ class Player(PlayerDatabase):
         self.guild_id=guild_id
         self.user_id=user_id
 
-        self.data=self.get_player_data()
+        self.refresh_data()
     
     def get_player_data(self)->dict:
         """
@@ -152,5 +152,7 @@ class Player(PlayerDatabase):
         self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".wish":id_card}})
     
     def has(self, id_card : int, quantity : int) -> bool:
-        self.data=self.get_player_data()
         return self.data.get("cards",{}).get(str(id_card),0)>=quantity
+    
+    def refresh_data(self) -> None:
+        self.data=self.get_player_data()

@@ -1,13 +1,10 @@
 import discord
 
-import data.Cards
 import fbot
 
 import database.PlayerDB as PlayerDB
 
 from database.Player import Player
-
-from data.Cards import Cards
 
 p=PlayerDB.PlayerDatabase()
 
@@ -31,7 +28,7 @@ class ShopView(discord.ui.View):
 
     @discord.ui.button(emoji="💎", style=discord.ButtonStyle.success, custom_id="lvlUp")
     async def lvlUp(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-        
+        self.player.refresh_data()
         player_level=self.player.get_lvl()
         player_gold=self.player.get_gold()
 
@@ -60,6 +57,7 @@ class ShopView(discord.ui.View):
 
     @discord.ui.button(emoji="🃏", style=discord.ButtonStyle.success, custom_id="buyCards")
     async def buyCards(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        self.player.refresh_data()
         if self.player.get_gold()>=30:
             self.player.add_gold(-30)
             self.player.add_stock(3)

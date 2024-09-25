@@ -12,7 +12,7 @@ p=PlayerDB.PlayerDatabase()
 
 class TradeAcceptView(discord.ui.View):
 
-    def __init__(self, inte: discord.Interaction, guild_id : int, list_cards_usr1 : list, player1 : Player, list_cards_usr2 : list, player2 : Player, embed_trade : discord.Embed) -> None:
+    def __init__(self, inte: discord.Interaction, guild_id : int, list_cards_usr1 : list, money_usr1 : int, player1 : Player, list_cards_usr2 : list, money_usr2 : int, player2 : Player, embed_trade : discord.Embed) -> None:
         super().__init__()
 
 
@@ -22,6 +22,9 @@ class TradeAcceptView(discord.ui.View):
 
         self.list_cards_usr1=list_cards_usr1
         self.list_cards_usr2=list_cards_usr2
+
+        self.money_usr1=money_usr1
+        self.money_usr2=money_usr2
 
 
         self.player1=player1
@@ -35,20 +38,22 @@ class TradeAcceptView(discord.ui.View):
         self.usr2_accepted=False
 
     @discord.ui.button(label="Accepter", style=discord.ButtonStyle.green, custom_id="accept")
-    async def accept(self, interaction: discord.Interaction, button: discord.ui.Button) -> None: # TODO : effacer les boutons à la fin de l'echange
+    async def accept(self, interaction: discord.Interaction, button: discord.ui.Button) -> None: 
         if interaction.user.id!=self.id_user1 and interaction.user.id!=self.id_user2:
             await interaction.response.defer()
             return
         
         if interaction.user.id==self.id_user1:
             self.usr1_accepted=True
-            self.embed_trade.set_field_at(0,name=f"Accepté par {interaction.user.name}", value=await Cards.formated_to_str(self.list_cards_usr1), inline=False)
+            format1=await Cards.formated_to_str(self.list_cards_usr1)
+            self.embed_trade.set_field_at(0,name=f"Accepté par {interaction.user.name}", value=f"{format1 if format1!="" else "(vide)"} + {self.money_usr1} 🪙", inline=False)
             await self.inte.edit_original_response(embed=self.embed_trade)
             await interaction.response.defer()
 
         else:
             self.usr2_accepted=True
-            self.embed_trade.set_field_at(1,name=f"Accepté par {interaction.user.name}", value=await Cards.formated_to_str(self.list_cards_usr2), inline=False)
+            format2=await Cards.formated_to_str(self.list_cards_usr2)
+            self.embed_trade.set_field_at(1,name=f"Accepté par {interaction.user.name}", value=f"{format2 if format2!="" else "(vide)"} + {self.money_usr2} 🪙", inline=False)
             await self.inte.edit_original_response(embed=self.embed_trade)
             await interaction.response.defer()
 
@@ -70,7 +75,9 @@ class TradeAcceptView(discord.ui.View):
 
     async def validate_trade(self, interaction: discord.Interaction) -> None:
 
-        #! ATTENTION, PROBELEME D'ORDRE VERIF DOIT ETRE AVANT ECHANGE
+        self.player1.refresh_data()
+        self.player2.refresh_data()
+        
         for card in self.list_cards_usr1: #verifier que les cartes sont encore en sa possesion sinon annuler (avec nouvel appel bdd)
             if not self.player1.has(card[0], card[1]):
                 await self.cancel_trade(cause="une carte est manquante")
@@ -79,6 +86,11 @@ class TradeAcceptView(discord.ui.View):
             if not self.player2.has(card[0], card[1]):
                 await self.cancel_trade(cause="une carte est manquante")
                 return 
+
+        if self.money_usr1>self.player1.get_gold() or self.money_usr2>self.player2.get_gold():
+            await self.cancel_trade(cause="il manque de l'argent")
+            return
+
 
         for card in self.list_cards_usr1:
             self.player1.add_card(card[0], -1*card[1]) # retire la carte de l'utilisateur
