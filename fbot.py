@@ -1,4 +1,14 @@
-import random, requests, json, time, discord
+# fichier contenant les variables par defaut et fonctions du bot
+import json, time, discord
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+API_URL = os.getenv('API_URL')
+
 
 
 default_nb_rolls=5
@@ -27,12 +37,10 @@ shop_prices={
 }
 
 
-maxLvl=5
+maxLvl=len(shop_prices["lvlUp"].keys())
 
-with open("config.json", "r") as f:
-    config = json.load(f)
 
-DISCORD_TOKEN = config["DISCORD_TOKEN"]
+
 
 def formated_date()->list:
     return [time.localtime().tm_year,time.localtime().tm_yday,time.localtime().tm_hour]
@@ -112,7 +120,7 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
         embed=discord.Embed(
             title="**Motifs**",
             color=discord.Color.dark_gold(),
-            description="Les Motifs permettent de définir une liste de cartes. Par exemple, `420|1&32|2` correspond à une fois la carte numéro 420 et deux fois la carte numéro 32, laissez simplement `&` pour un motif vide."
+            description="Les Motifs permettent de définir une liste de cartes. Par exemple, `420|1&32|2` correspond à une fois la carte numéro 420 et deux fois la carte numéro 32, laissez simplement `&` pour un motif vide. Ajoutez un espace, une valeur puis \"g\" pour inclure de l'argent (uniquement pour les échanges)."
         )
 
     embeds.append(embed)
@@ -127,3 +135,4 @@ def format_str_search(name : str) -> str:
 
 if __name__ == "__main__":
     print(formated_date())
+    print(API_URL)
