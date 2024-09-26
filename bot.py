@@ -228,5 +228,10 @@ async def wish(inte : discord.Interaction, w : int = 0):
     else:
         player.set_wish(w)
         await inte.response.send_message(f"Votre wish est maintenant {w}")
+        
+
+@tree.command(name="feedback", description="Permet d'afficher le formulaire de Feedback")
+async def feedback(inte : discord.Interaction):
+    await inte.response.send_message(content="Feedback : https://forms.gle/PoMnBvC8JVQ2WofAA", ephemeral=True, delete_after=120)
 
 bot.run(fbot.DISCORD_TOKEN)

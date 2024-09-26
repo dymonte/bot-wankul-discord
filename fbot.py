@@ -95,7 +95,7 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
             color=discord.Color.dark_gold(),
         )
         for j in i["fields"]:
-            embed.add_field(name=j["command"], value=j["description"], inline=False)
+            embed.add_field(name="/"+j["command"], value=j["description"], inline=False)
         
         embeds.append(embed)
 
