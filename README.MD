@@ -1,5 +1,47 @@
 sudo systemctl start mongod
 
 
+# Projet Wankul Bot
 
-idee : pouvoir wish une carte, à chaque fois qu'on l'obtient, on reçoit son coût en argent aussi
+Ce projet est un bot Discord développé en Python qui permet aux utilisateurs de jouer à un jeu de cartes appelé Wankul.
+
+## Fonctionnalités
+
+* LObtenir et collectionner des cartes
+* Echanger des cartes avec d'autres joueurs
+* Vendre des cartes pour obtenir de l'or
+* Acheter des cartes dans un magasin et améliorer son niveau dans la boutique
+
+## Installation
+
+Pour installer le bot, vous devez avoir Python et les dépendances suivantes :
+
+* discord.py
+* pymongo
+
+Vous pouvez installer les dépendances en exécutant la commande suivante :
+
+```bash
+pip install discord.py pymongo
+```
+
+## Configuration
+Vous devez configurer le bot en créant un fichier `.env` avec les variables suivantes :
+
+- `DISCORD_TOKEN` : le token de votre bot Discord
+- `API_URL` : l'URL de l'API que le bot utilise
+
+Pour lancer le bot, exécutez la commande suivante :
+```bash
+python3 bot.py
+```
+# Commandes
+Voici les commandes principales que le bot supporte :
+
+- `/roll` : obtenir une carte
+- `/trade` : échanger des cartes avec d'autres joueurs
+- `/shop` : acheter des cartes dans un magasin
+- `/sell` : vendre des cartes pour obtenir de l'or
+- `/help` : afficher l'aide
+
+Utilisez `/help` pour voir toutes les commandes disponibles

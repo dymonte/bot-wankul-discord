@@ -84,37 +84,22 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
     )
 
     embeds.append(embed)
-
-    embed=discord.Embed(
-        title="**Actions**",
-        color=discord.Color.dark_gold(),
-    )
-
-    if lang=="fr":
-        embed.add_field(name="/roll", value="Lancer le roll d'une carte, utilise en priorité les rolls temporaires puis les rolls en stock.", inline=False)
-        embed.add_field(name="/trade", value="Entrez la personne avec qui vous voulez trade, puis les cartes proposées et celles demandées avec des *motifs*.", inline=False)
-        embed.add_field(name="/shop", value="Voir le shop pour acheter des niveaux ou du stock de cartes. Les cartes stockées ne sont pas réinitialisées chaque heure.", inline=False)
-        embed.add_field(name="/sell", value="Vendre des cartes selon un motif.", inline=False)
-
-        embed.add_field(name="/auto_sell", value="Vendre automatiquement les cartes en définissant les raretés des cartes à vendre ainsi que le fait de garder ou non un exeplaire de chaque carte.\nGarder les arguments vides permet de vendre tous les doublons peu commun et inférieur", inline=False)
-    embeds.append(embed)
-
-    embed=discord.Embed(
-        title="**Informations**",
-        color=discord.Color.dark_gold(),
-    )
-
-    if lang=="fr":
-        embed.add_field(name="/info", value="Voir les informations d'une carte en fonction de son identifiant.", inline=False)
-        embed.add_field(name="/search", value="Rechercher les cartes en fonction de leur nom.", inline=False)
-        embed.add_field(name="/info_player", value="Affiche les informations d'un joueur (niveau, gold)", inline=False)
-        embed.add_field(name="/collection", value="Voir la collection de cartes d'un joueur (par défaut le joueur qui lance la commande)", inline=False)
-        embed.add_field(name="/change_color", value="Changer la couleur du profil du joueur. (Format hexadecimal `#RRGGBB` attendu)", inline=False)
-        embed.add_field(name="/help", value="Voir cette aide", inline=False)
+    
+    
+    with open("help.json") as f:
+        help_dict=json.load(f)
+    
+    for i in help_dict:
+        embed=discord.Embed(
+            title=i["name"],
+            color=discord.Color.dark_gold(),
+        )
+        for j in i["fields"]:
+            embed.add_field(name=j["command"], value=j["description"], inline=False)
         
+        embeds.append(embed)
 
 
-    embeds.append(embed)
 
     if lang=="fr":
         embed=discord.Embed(
@@ -129,7 +114,7 @@ def embed_help(lang : str="fr") -> list[discord.Embed]:
 
 
 def format_str_search(name : str) -> str:
-    return name.lower().replace("é","e").replace("à","a")
+    return name.lower().replace("é","e").replace("à","a").replace(" ","")
 
 
 

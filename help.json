@@ -1,0 +1,60 @@
+[
+    {
+        "name": "Actions",
+        "fields": [
+            {
+                "command": "/roll",
+                "description": "Lancer le roll d'une carte, utilise en priorité les rolls temporaires puis les rolls en stock."
+            },
+            {
+                "command": "/trade",
+                "description": "Entrez la personne avec qui vous voulez trade, puis les cartes proposées et celles demandées avec des *motifs*."
+            },
+            {
+                "command": "/shop",
+                "description": "Voir le shop pour acheter des niveaux ou du stock de cartes. Les cartes stockées ne sont pas réinitialisées chaque heure."
+            },
+            {
+                "command": "/sell",
+                "description": "Vendre des cartes selon un motif."
+            },
+            {
+                "command": "/auto_sell",
+                "description": "Vendre des cartes automatiquement."
+            }
+        ]
+    },
+    {
+        "name": "Informations",
+        "fields": [
+            {
+                "command": "/info `<id>`",
+                "description": "Voir les informations d'une carte en fonction de son identifiant."
+            },
+            {
+                "command": "/search `<nom>`",
+                "description": "Rechercher les cartes en fonction de leur nom."
+            },
+            {
+                "command": "/info_player",
+                "description": "Affiche les informations d'un joueur (niveau, gold)"
+            },
+            {
+                "command": "/collection",
+                "description": "Voir la collection de cartes d'un joueur (par défaut le joueur qui lance la commande)"
+            },
+            {
+                "command": "/wish `<id>`",
+                "description": "Changer le nom du profil du joueur."
+            },
+            {
+                "command": "/change_color `<couleur>`",
+                "description": "Changer la couleur du profil du joueur. (Format hexadecimal `#RRGGBB` ou `RRGGBB` attendu)"
+            },
+            {
+                "command": "/help",
+                "description": "Voir cette aide"
+            }
+        ]
+    }
+]
