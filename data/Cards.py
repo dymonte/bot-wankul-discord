@@ -1,4 +1,4 @@
-import json, discord, random
+import discord, random
 
 import fbot
 

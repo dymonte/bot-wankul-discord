@@ -216,8 +216,10 @@ async def shop(inte : discord.Interaction):
 
 # --- Help ---
 @tree.command(name="help", description="Aide")
-async def help(inte : discord.Interaction):
-    embeds=fbot.embed_help()
+@app_commands.choices(command=fbot.help_choices)
+async def help(inte : discord.Interaction, command : discord.app_commands.Choice[str] = None):
+    if command!=None: command=command.value
+    embeds=fbot.embed_help(command)
     await inte.response.send_message(embeds=embeds, ephemeral=True, delete_after=120)
 
 @tree.command(name="wish", description="Définit un nouveau wish ou affiche l'actuel")
@@ -230,8 +232,10 @@ async def wish(inte : discord.Interaction, w : int = 0):
         await inte.response.send_message(f"Votre wish est maintenant {w}")
         
 
+
 @tree.command(name="feedback", description="Permet d'afficher le formulaire de Feedback")
 async def feedback(inte : discord.Interaction):
-    await inte.response.send_message(content="Feedback : https://forms.gle/PoMnBvC8JVQ2WofAA", ephemeral=True, delete_after=120)
+    await inte.response.send_message(content=f"Feedback : https://forms.gle/PoMnBvC8JVQ2WofAA", ephemeral=True, delete_after=120)
+    
 
 bot.run(fbot.DISCORD_TOKEN)

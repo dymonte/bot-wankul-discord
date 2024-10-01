@@ -3,7 +3,7 @@ sudo systemctl start mongod
 
 # Projet Wankul Bot
 
-Ce projet est un bot Discord développé en Python qui permet aux utilisateurs de jouer à un jeu de cartes appelé Wankul.
+Ce projet est un bot Discord développé en Python qui permet aux utilisateurs de jouer à un jeu de cartes appelé [Wankul](https://wankul.com).
 
 ## Fonctionnalités
 
@@ -25,11 +25,13 @@ Vous pouvez installer les dépendances en exécutant la commande suivante :
 pip install discord.py pymongo
 ```
 
+Il est également nécessaire d'avoir mongodb installé.
+
 ## Configuration
 Vous devez configurer le bot en créant un fichier `.env` avec les variables suivantes :
 
 - `DISCORD_TOKEN` : le token de votre bot Discord
-- `API_URL` : l'URL de l'API que le bot utilise
+- `API_URL` : l'URL de l'[API](https://github.com/dymonte/api-wankul) que le bot utilise
 
 Pour lancer le bot, exécutez la commande suivante :
 ```bash

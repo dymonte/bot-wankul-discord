@@ -39,7 +39,13 @@ shop_prices={
 
 maxLvl=len(shop_prices["lvlUp"].keys())
 
+with open("help.json") as f:
+    help_dict=json.load(f)
 
+help_choices=[]
+for i in help_dict:
+    for j in i["fields"]:
+        help_choices.append(discord.app_commands.Choice(name=j["name"], value=j["name"]))
 
 
 def formated_date()->list:
@@ -72,45 +78,58 @@ def embed_shop(level : int, stock : int, money : int) -> discord.Embed:
 
 
 
-def embed_help(lang : str="fr") -> list[discord.Embed]:
+def embed_help(command : str=None, lang : str="fr") -> list[discord.Embed]:
     
-    embeds=[]
-
-    embed=discord.Embed(
-        title="**Introduction**",
-        color=discord.Color.dark_gold(),
-        description=f"Ce bot permet de roll et de collectionner des cartes du jeu Wankul. Pour commencer, utilisez `/roll`.\n\
-            Par défaut, vous possédez {default_nb_rolls} rolls par heure, ce qui peut être amélioré dans la boutique."
-    )
-
-    embeds.append(embed)
-    
-    
-    with open("help.json") as f:
-        help_dict=json.load(f)
-    
-    for i in help_dict:
-        embed=discord.Embed(
-            title=i["name"],
-            color=discord.Color.dark_gold(),
-        )
-        for j in i["fields"]:
-            embed.add_field(name="/"+j["command"], value=j["description"], inline=False)
+    embeds=[]       
         
-        embeds.append(embed)
-
-
-
+        
     if lang=="fr":
-        embed=discord.Embed(
+        embed_motif=discord.Embed(
             title="**Motifs**",
             color=discord.Color.dark_gold(),
             description="Les Motifs permettent de définir une liste de cartes. Par exemple, `420|1&32|2` correspond à une fois la carte numéro 420 et deux fois la carte numéro 32, laissez simplement `&` pour un motif vide. Ajoutez un espace, une valeur puis \"g\" pour inclure de l'argent (uniquement pour les échanges)."
         )
 
-    embeds.append(embed)
 
-    return embeds
+    if command!=None:
+        for i in help_dict:
+            for j in i["fields"]:
+                if format_str_search(command) in format_str_search(j["name"]):
+                    embeds=[discord.Embed(
+                        title=f"`/{j['command']}`",
+                        color=discord.Color.dark_gold(),
+                        description=j["description"]
+                    )]
+                    if j["hasMotif"]:embeds.append(embed_motif)
+                    return embeds
+        return None
+
+    else:
+    
+        embed=discord.Embed(
+            title="**Introduction**",
+            color=discord.Color.dark_gold(),
+            description=f"Ce bot permet de roll et de collectionner des cartes du jeu Wankul. Pour commencer, utilisez `/roll`.\n\
+                Par défaut, vous possédez {default_nb_rolls} rolls par heure, ce qui peut être amélioré dans la boutique."
+        )
+
+        embeds.append(embed)
+
+        
+        for i in help_dict:
+            embed=discord.Embed(
+                title=i["name"],
+                color=discord.Color.dark_gold(),
+                description=""
+            )
+            for j in i["fields"]:
+                embed.description+=f"`{j['command']}`, "
+            
+            embeds.append(embed)
+        
+        embeds.append(embed_motif)
+
+        return embeds
 
 
 def format_str_search(name : str) -> str:
@@ -119,5 +138,4 @@ def format_str_search(name : str) -> str:
 
 
 if __name__ == "__main__":
-    print(formated_date())
-    print(API_URL)
+    print(embed_help("help")[0])
