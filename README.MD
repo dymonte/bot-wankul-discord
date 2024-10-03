@@ -32,6 +32,8 @@ Vous devez configurer le bot en créant un fichier `.env` avec les variables sui
 
 - `DISCORD_TOKEN` : le token de votre bot Discord
 - `API_URL` : l'URL de l'[API](https://github.com/dymonte/api-wankul) que le bot utilise
+- `DB_HOST` : l'URL de la base de données Mongo 
+- `DB_PORT` : le port de la base de données
 
 Pour lancer le bot, exécutez la commande suivante :
 ```bash
