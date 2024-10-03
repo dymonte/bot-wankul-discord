@@ -83,6 +83,7 @@ class Cards():
 
     async def random_card():
         rarities=await Cards.get_rarities()
+        rarities=[rarities[k] for k in rarities]
         rarities=rarities[:9] # ne garde que jusqu'a la rarete gold
 
         rarity=random.choices(rarities, [float(i.get("txDrop",0).replace("%","")) for i in rarities], k=1)[0]
