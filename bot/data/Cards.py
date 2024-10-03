@@ -16,7 +16,7 @@ class Cards():
 
     async def get_cards_by_rarity(rarity):
         async with aiohttp.ClientSession() as session:
-            async with session.get(url+"/v1/rarity/"+str(rarity)+"/list") as resp:
+            async with session.get(url+"/v1/rarity/"+str(rarity)+"/cards") as resp:
                 return await resp.json()
     
     async def get_rarities():
