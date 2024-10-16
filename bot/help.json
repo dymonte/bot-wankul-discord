@@ -4,31 +4,31 @@
         "fields": [
             {
                 "name": "Roll",
-                "command": "roll",
+                "command": "/roll",
                 "description": "Lancer le roll d'une carte, utilise en priorité les rolls temporaires puis les rolls en stock.",
                 "hasMotif": false
             },
             {
                 "name": "Trade",
-                "command": "trade [user] [motif1] [motif2]",
+                "command": "/trade [user] [motif1] [motif2]",
                 "description": "Entrez la personne avec qui vous voulez trade, puis les cartes et/ou or que vous souhaitez donner, idem pour ce que vous demandez. Tout cela se fera à l'aide des *motifs*.",
                 "hasMotif": true
             },
             {
                 "name": "Shop",
-                "command": "shop",
+                "command": "/shop",
                 "description": "Voir le shop pour acheter des niveaux ou du stock de cartes. Les cartes stockées ne sont pas réinitialisées chaque heure.",
                 "hasMotif": false
             },
             {
                 "name": "Sell",
-                "command": "sell [motif]",
+                "command": "/sell [motif]",
                 "description": "Vendre des cartes selon un motif.",
                 "hasMotif": true
             },
             {
                 "name": "Auto Sell",
-                "command": "auto_sell",
+                "command": "/auto_sell",
                 "description": "Vendre des cartes automatiquement.",
                 "hasMotif": false
             }
@@ -39,37 +39,37 @@
         "fields": [
             {
                 "name": "Info Card",
-                "command": "info_card [id]",
+                "command": "/info_card [id]",
                 "description": "Voir les informations d'une carte en fonction de son identifiant.",
                 "hasMotif": false
             },
             {
                 "name": "Search",
-                "command": "search [nom]",
+                "command": "/search [nom]",
                 "description": "Rechercher les cartes en fonction de leur nom.",
                 "hasMotif": false
             },
             {
                 "name": "Info Player",
-                "command": "info_player <user>",
+                "command": "/info_player <user>",
                 "description": "Affiche les informations d'un joueur (niveau, gold)",
                 "hasMotif": false
             },
             {
                 "name": "Collection",
-                "command": "collection <user>",
+                "command": "/collection <user>",
                 "description": "Voir la collection de cartes d'un joueur (par défaut le joueur qui lance la commande)",
                 "hasMotif": false
             },
             {
                 "name": "Wish",
-                "command": "wish [id]",
+                "command": "/wish [id]",
                 "description": "Changer la carte souhaitée, cette carte vous donnera de l'argent lorsque vous l'obtiendrez.",
                 "hasMotif": false
             },
             {
                 "name": "Change Color",
-                "command": "change_color [couleur]",
+                "command": "/change_color [couleur]",
                 "description": "Changer la couleur du profil du joueur. (Format hexadecimal `#RRGGBB` ou `RRGGBB` attendu)",
                 "hasMotif": false
             }

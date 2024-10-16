@@ -70,9 +70,9 @@ def embed_shop(level : int, stock : int, money : int) -> discord.Embed:
         title=f"**Shop** - 🪙 {money}",
         color=discord.Color.dark_gold(),
     )
-    embed.add_field(name=f"💎 **Level Up** (🪙{"-" if level>=5 else shop_prices['lvlUp'][level+1]})", value=f"Augmentez votre niveau\nVous êtes actuellement niveau {level}/5", inline=False)
+    embed.add_field(name=f"💎 **Level Up** (🪙 {"-" if level>=5 else shop_prices['lvlUp'][level+1]})", value=f"Augmentez votre niveau\nVous êtes actuellement niveau {level}/5", inline=False)
 
-    embed.add_field(name="🃏 **Acheter 3 cartes** (🪙30)", value=f"Achetez des stocks de roll supplémentaires\nVous avez actuellement {stock} en stock", inline=False)
+    embed.add_field(name="🃏 **Acheter 3 cartes** (🪙 30)", value=f"Achetez des stocks de roll supplémentaires\nVous avez actuellement {stock} en stock", inline=False)
 
     return embed
 
@@ -96,7 +96,7 @@ def embed_help(command : str=None, lang : str="fr") -> list[discord.Embed]:
             for j in i["fields"]:
                 if format_str_search(command) in format_str_search(j["name"]):
                     embeds=[discord.Embed(
-                        title=f"`/{j['command']}`",
+                        title=f"`{j['command']}`",
                         color=discord.Color.dark_gold(),
                         description=j["description"]
                     )]
