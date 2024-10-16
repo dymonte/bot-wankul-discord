@@ -8,6 +8,9 @@ from data.Cards import Cards
 
 
 class SellView(discord.ui.View):
+    """
+    ! ATTENTION : problème de verification des cartes, voir Views/Shop.py
+    """
 
     def __init__(self, inte: discord.Interaction, player : Player, list_cards : list, value : int, embed: discord.Embed) -> None:
         super().__init__()
@@ -28,7 +31,7 @@ class SellView(discord.ui.View):
             await interaction.response.defer()
             return
         
-        self.player.add_gold(self.value)
+        self.player.add("gold",self.value)
 
         self.embed.set_field_at(0,name=f"Vendus par {interaction.user.name} pour {self.value} gold{'s' if self.value>1 else ''}.", value=await Cards.formated_to_str(self.list_cards), inline=False)
         self.embed.color=discord.Color.green()

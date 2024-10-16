@@ -95,8 +95,8 @@ async def te(inte : discord.Interaction, user : discord.User, offre : str, deman
     player1=Player(inte.guild.id, inte.user.id)
     player2=Player(inte.guild.id, user.id)
 
-    trade_usr1,money_usr1=Cards.format_list_card(offre, player1.data.get("cards",{}), player1.get_gold())
-    trade_usr2,money_usr2=Cards.format_list_card(demande, player2.data.get("cards",{}), player2.get_gold())
+    trade_usr1,money_usr1=Cards.format_list_card(offre, player1.data.get("cards",{}), player1.get("gold"))
+    trade_usr2,money_usr2=Cards.format_list_card(demande, player2.data.get("cards",{}), player2.get("gold"))
 
     emebed_trade=discord.Embed(title="Trade")
 
@@ -170,7 +170,7 @@ async def send_sell_message(inte : discord.Interaction, player : Player, formate
 
     embed.add_field(name=f"Voulez vous vendre pour {value} gold{'s' if value>1 else ''}:", value=await Cards.formated_to_str(formated_list), inline=False)
 
-    await inte.response.send_message(embed=embed, view=SellView(inte, player, formated_list, value, embed))
+    await inte.response.send_message(embed=embed, view=SellView(inte, player, formated_list, value, embed), ephemeral=True)
 
 
 
@@ -182,18 +182,17 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
     player=Player(inte.guild.id, user.id)
 
     try:
-        color=discord.Color.from_str(player.get_player_color())
+        color=discord.Color.from_str(player.get("color"))
     except:
         color=discord.Color.from_str("#000000")
 
     embed=discord.Embed(title=f"{user.global_name} ({user.name})", color=color)
     embed.set_thumbnail(url=user.display_avatar.url)
-    embed.add_field(name="💎 Level", value=f"{player.get_lvl()}", inline=True)
-    embed.add_field(name="🪙 Gold", value=f"{player.get_gold()}", inline=True)
+    embed.add_field(name="💎 Level", value=f"{player.get("level")}", inline=True)
+    embed.add_field(name="🪙 Gold", value=f"{player.get("gold")}", inline=True)
     embed.add_field(name="", value="", inline=False)
-    embed.add_field(name="📦 Stock", value=f"{player.get_stock()}", inline=True)
-    embed.add_field(name="✨ Wish", value=f"{player.get_wish()}", inline=True)
-
+    embed.add_field(name="📦 Stock", value=f"{player.get("stock")}", inline=True)
+    embed.add_field(name="✨ Wish", value=f"{player.get("wish")}", inline=True)
 
     await inte.response.send_message(embed=embed, ephemeral=not show)
 
@@ -201,7 +200,7 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
 @tree.command(name="change_color", description="Change la couleur du profil du joueur")
 async def change_color(inte : discord.Interaction, color : str):
     
-    Player(inte.guild.id, inte.user.id).set_player_color(color)
+    Player(inte.guild.id, inte.user.id).set("color",color)
     if "#" not in color: color=f"#{color}" #discord n'autorise qu'avec # au debut
     await inte.response.send_message(f"Couleur changee en {color}", ephemeral=True)
 
@@ -209,9 +208,18 @@ async def change_color(inte : discord.Interaction, color : str):
 @tree.command(name="shop", description="Ouvrir le shop")
 async def shop(inte : discord.Interaction):
     player=Player(inte.guild.id, inte.user.id)
-    embed=fbot.embed_shop(player.get_lvl(), player.get_stock(), player.get_gold())
+    embed=fbot.embed_shop(player.get("level"), player.get("stock"), player.get("gold"))
     
     await inte.response.send_message(embed=embed, ephemeral=True, view=ShopView(inte, player, embed))
+
+@tree.command(name="wish", description="Définit un nouveau wish ou affiche l'actuel")
+async def wish(inte : discord.Interaction, w : int = 0):
+    player=Player(inte.guild.id, inte.user.id)
+    if w==0:
+        await inte.response.send_message(f"Votre wish actuel est {player.get("wish")}")
+    else:
+        player.set("wish", w)
+        await inte.response.send_message(f"Votre wish est maintenant {w}")
 
 
 # --- Help ---
@@ -222,20 +230,19 @@ async def help(inte : discord.Interaction, command : discord.app_commands.Choice
     embeds=fbot.embed_help(command)
     await inte.response.send_message(embeds=embeds, ephemeral=True, delete_after=120)
 
-@tree.command(name="wish", description="Définit un nouveau wish ou affiche l'actuel")
-async def wish(inte : discord.Interaction, w : int = 0):
-    player=Player(inte.guild.id, inte.user.id)
-    if w==0:
-        await inte.response.send_message(f"Votre wish actuel est {player.get_wish()}")
-    else:
-        player.set_wish(w)
-        await inte.response.send_message(f"Votre wish est maintenant {w}")
-        
-
-
 @tree.command(name="feedback", description="Permet d'afficher le formulaire de Feedback")
 async def feedback(inte : discord.Interaction):
     await inte.response.send_message(content=f"Feedback : https://forms.gle/PoMnBvC8JVQ2WofAA", ephemeral=True, delete_after=120)
     
 
+@tree.command(name="discord", description="Permet d'afficher le lien du discord officiel du bot")
+async def disc(inte : discord.Interaction):
+    await inte.response.send_message(content="https://discord.gg/", ephemeral=True, delete_after=120)
+
+
+
+
+
+
+# --- Run ---
 bot.run(fbot.DISCORD_TOKEN)

@@ -87,10 +87,15 @@ class TradeAcceptView(discord.ui.View):
                 await self.cancel_trade(cause="une carte est manquante")
                 return 
 
-        if self.money_usr1>self.player1.get_gold() or self.money_usr2>self.player2.get_gold():
+        if self.money_usr1>self.player1.get("gold") or self.money_usr2>self.player2.get("gold"):
             await self.cancel_trade(cause="il manque de l'argent")
             return
 
+        self.player1.add("gold",-1*self.money_usr1)
+        self.player2.add("gold",-1*self.money_usr2)
+
+        self.player1.add("gold",self.money_usr2)
+        self.player2.add("gold",self.money_usr1)
 
         for card in self.list_cards_usr1:
             self.player1.add_card(card[0], -1*card[1]) # retire la carte de l'utilisateur

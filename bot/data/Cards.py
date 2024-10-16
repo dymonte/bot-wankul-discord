@@ -134,7 +134,7 @@ class Cards():
         """
         res=""
         for e in l:
-            res+=f"{await Cards.get_name(e[0])}({(await Cards.get_rarity(e[0])).get('accronym','')})x{e[1]}  "
+            res+=f"{await Cards.get_name(e[0])}({(await Cards.get_rarity(e[0])).get('accronym','')})x{e[1]}   "
         return res
 
 

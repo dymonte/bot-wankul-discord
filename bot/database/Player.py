@@ -68,7 +68,7 @@ class Player(PlayerDatabase):
 
 
     async def roll(self) -> discord.Embed: 
-        stock=self.get_stock()
+        stock=self.get("stock")
         can_roll=self.can_roll()
         if not can_roll and stock==0: 
             return None
@@ -84,12 +84,12 @@ class Player(PlayerDatabase):
 
         self.add_card(rolled["id"])
 
-        embed=(await Cards.get_embed_card(rolled["id"])).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{self.get_stock()} en stock)" if self.get_stock()>0 else "")) # affiche le nombre de rolls restants et le stock au bas de l'embed
+        embed=(await Cards.get_embed_card(rolled["id"])).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{self.get("stock")} en stock)" if self.get("stock")>0 else "")) # affiche le nombre de rolls restants et le stock au bas de l'embed
 
-        if rolled["id"]==self.get_wish():
+        if rolled["id"]==self.get("wish"):
             earning=int(100*fbot.cost_per_rarity.get(rolled.get("rarity",{}).get("id",0),0))
             embed.add_field(name="Wish gagné", value=f"+ {earning} 🪙", inline=False)
-            self.add_gold(earning)
+            self.add("gold",earning)
 
         return embed
     
@@ -114,42 +114,33 @@ class Player(PlayerDatabase):
         cards=self.data.get("cards",{})
 
         return sorted(list(cards.items()), key=lambda x:int(x[0]))
-
-
-    def set_player_color(self, color : str) -> None:
-        self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".color":color}})
-        self.data["color"]=color
-
-    def get_player_color(self) -> str:
-        return self.data.get("color","#000000")
     
-    def add_gold(self, amount : int) -> None:
-        self.data["gold"]+=amount
-        self.players_table.update_one({"_id":str(self.guild_id)},{"$inc":{"players."+str(self.user_id)+".gold":amount}})
+    def update(self, action: str,field: str, amount: int = 1) -> bool:
+        if action not in ["inc","set"]:
+            return False
+        
+        query = {f"${action}": {f"players.{self.user_id}.{field}": amount}}
 
-    def get_lvl(self) -> int:
-        return self.data.get("level",0)
+        try:
+            self.player_table.update_one(
+                    {"_id": str(self.guild_id)},
+                    query)
+            
+            self.data[field] = self.data.get(field, 0) + amount if action == "inc" else amount
+        
+        except:
+            return False
 
-    def add_lvl(self, amount : int = 1) -> None:
-        self.data["level"]+=amount
-        self.players_table.update_one({"_id":str(self.guild_id)},{"$inc":{"players."+str(self.user_id)+".level":amount}})
-
-    def get_gold(self) -> int:
-        return self.data.get("gold",0)
+        return True
     
-    def get_stock(self) -> int:
-        return self.data.get("stock",0)
+    def add(self, field, amount : int = 0) -> bool:
+        return self.update("inc", field, amount)
 
-    def add_stock(self, amount : int) -> None:
-        self.data["stock"]+=amount
-        self.players_table.update_one({"_id":str(self.guild_id)},{"$inc":{"players."+str(self.user_id)+".stock":amount}})
-
-    def get_wish(self) -> int:
-        return self.data.get("wish",0)
-
-    def set_wish(self, id_card : int) -> None:
-        self.data["wish"]=id_card
-        self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".wish":id_card}})
+    def set(self, field, amount : int) -> bool:
+        return self.update("set", field, amount)
+    
+    def get(self, field):
+        return self.data.get(field,False)
     
     def has(self, id_card : int, quantity : int) -> bool:
         return self.data.get("cards",{}).get(str(id_card),0)>=quantity
