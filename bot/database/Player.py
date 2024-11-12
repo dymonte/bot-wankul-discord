@@ -98,6 +98,8 @@ class Player(PlayerDatabase):
         """
         Ajoute une carte a la collection du joueur
         """
+        
+        self.refresh_data()
 
         updated_quantity=self.data.get("cards",{}).get(str(id_card),0)+quantity
 
@@ -105,6 +107,7 @@ class Player(PlayerDatabase):
             self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".cards."+str(id_card):updated_quantity}})
         else:
             self.players_table.update_one({"_id":str(self.guild_id)},{"$unset":{"players."+str(self.user_id)+".cards."+str(id_card):1}})
+            
 
 
     def list_of_cards(self) -> list: 
@@ -116,6 +119,17 @@ class Player(PlayerDatabase):
         return sorted(list(cards.items()), key=lambda x:int(x[0]))
     
     def update(self, action: str,field: str, amount: int = 1) -> bool:
+        """
+        Met a jour le champ {field} du joueur
+
+        Args:
+            action (str): soit "inc" pour incrementer, soit "set" pour mettre a jour
+            field (str): le nom du champ a mettre a jour
+            amount (int, optional): la valeur a ajouter ou a affecter. Defaults to 1.
+
+        Returns:
+            bool: True si la mise a jour a reussi, False sinon
+        """
         if action not in ["inc","set"]:
             return False
         
@@ -143,6 +157,7 @@ class Player(PlayerDatabase):
         return self.data.get(field,False)
     
     def has(self, id_card : int, quantity : int) -> bool:
+        self.refresh_data()
         return self.data.get("cards",{}).get(str(id_card),0)>=quantity
     
     def refresh_data(self) -> None:
