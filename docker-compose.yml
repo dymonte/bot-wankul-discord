@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wankul-bot
+    restart: unless-stopped
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - API_URL=${API_URL}
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: wankul-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:

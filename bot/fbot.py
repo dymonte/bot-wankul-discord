@@ -39,7 +39,7 @@ shop_prices={
 
 maxLvl=len(shop_prices["lvlUp"].keys())
 
-with open("bot/help.json") as f:
+with open("help.json") as f:
     help_dict=json.load(f)
 
 help_choices=[]
