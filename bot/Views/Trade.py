@@ -13,6 +13,23 @@ p=PlayerDB.PlayerDatabase()
 class TradeAcceptView(discord.ui.View):
 
     def __init__(self, inte: discord.Interaction, guild_id : int, list_cards_usr1 : list, money_usr1 : int, player1 : Player, list_cards_usr2 : list, money_usr2 : int, player2 : Player, embed_trade : discord.Embed) -> None:
+        """
+        Initialize a TradeAcceptView object.
+
+        Args:
+            inte (discord.Interaction): The interaction object for the command.
+            guild_id (int): The Discord guild ID.
+            list_cards_usr1 (list): The list of cards to be traded by user 1.
+            money_usr1 (int): The amount of gold to be traded by user 1.
+            player1 (Player): The player instance for user 1.
+            list_cards_usr2 (list): The list of cards to be traded by user 2.
+            money_usr2 (int): The amount of gold to be traded by user 2.
+            player2 (Player): The player instance for user 2.
+            embed_trade (discord.Embed): The embed object to display the trade information.
+
+        Returns:
+            None
+        """
         super().__init__()
 
 
@@ -39,6 +56,14 @@ class TradeAcceptView(discord.ui.View):
 
     @discord.ui.button(label="Accepter", style=discord.ButtonStyle.green, custom_id="accept")
     async def accept(self, interaction: discord.Interaction, button: discord.ui.Button) -> None: 
+        """
+        Handles the "Accepter" button interaction.
+
+        If the user is not one of the two players involved in the trade, the interaction is deferred.
+        If the user is player 1, the trade information for player 1 is updated to reflect the acceptance.
+        If the user is player 2, the trade information for player 2 is updated to reflect the acceptance.
+        If both players have accepted, the trade is validated.
+        """
         if interaction.user.id!=self.id_user1 and interaction.user.id!=self.id_user2:
             await interaction.response.defer()
             return
@@ -65,15 +90,32 @@ class TradeAcceptView(discord.ui.View):
     @discord.ui.button(label="Refuser", style=discord.ButtonStyle.red, custom_id="refuse")
     async def refuse(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         """
-        * Ferme le trade dans le cas du refus de l'un des deux
-        TODO : effacer les boutons à la fin de l'echange, changer la couleur de l'embed et le footer
+        Handles the "Refuser" button interaction.
+
+        If the user is not one of the two players involved in the trade, the interaction is ignored.
+        Otherwise, the trade is canceled, and a message indicating the user's refusal is displayed.
         """
+
         if interaction.user.id!=self.id_user1 and interaction.user.id!=self.id_user2: return
         
         await self.cancel_trade(cause=f"refus de {interaction.user.name}")
 
-
     async def validate_trade(self, interaction: discord.Interaction) -> None:
+        """
+        Validates and executes the trade between two players.
+
+        This method checks if both players have the necessary cards and gold 
+        to proceed with the trade. If any card is missing or if either player 
+        lacks sufficient gold, the trade is canceled. On successful validation, 
+        the specified amounts of gold and cards are exchanged between the players, 
+        and the trade embed is updated to reflect the success.
+
+        Args:
+            interaction (discord.Interaction): The interaction object for the trade.
+
+        Returns:
+            None
+        """
 
         self.player1.refresh_data()
         self.player2.refresh_data()
@@ -111,6 +153,17 @@ class TradeAcceptView(discord.ui.View):
         self.stop()
 
     async def cancel_trade(self, cause : str = "") -> None:
+        """
+        Cancel the trade.
+
+        This method updates the trade embed to reflect the cancellation, by setting its color to red and its footer to a message indicating the cause of the cancellation (if any).
+
+        Args:
+            cause (str): The cause of the cancellation. Defaults to an empty string.
+
+        Returns:
+            None
+        """
         self.embed_trade.set_footer(text=f"Annulé{" : " if cause!="" else ""}{cause}")
         self.embed_trade.color=discord.Color.red()
         await self.inte.edit_original_response(embed=self.embed_trade, view=None)
@@ -118,8 +171,13 @@ class TradeAcceptView(discord.ui.View):
 
     async def on_timeout(self) -> None:
         """
-        TODO : changer la couleur de l'embed et le footer
+        Handles the timeout of the trade interaction.
+
+        This method updates the trade embed to reflect the cancellation due to timeout,
+        by setting its color to red and its footer to indicate the trade was canceled.
+        Stops the view once the changes are made.
         """
+
         self.embed_trade.set_footer(text="Annulé")
         self.embed_trade.color=discord.Color.red()
         await self.inte.edit_original_response(embed=self.embed_trade, view=None)

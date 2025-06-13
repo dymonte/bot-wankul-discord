@@ -19,6 +19,15 @@ class ShopView(discord.ui.View):
     """
 
     def __init__(self, inte: discord.Interaction, player : Player, embed : discord.Embed):
+        """
+        Initializes the ShopView with interaction details, player information, 
+        and an embed for display.
+
+        Args:
+            inte (discord.Interaction): The interaction object for the command.
+            player (Player): The player instance interacting with the shop.
+            embed (discord.Embed): The embed object to display the shop information.
+        """
         super().__init__()
 
         self.inte=inte
@@ -28,6 +37,24 @@ class ShopView(discord.ui.View):
 
     @discord.ui.button(emoji="💎", style=discord.ButtonStyle.success, custom_id="lvlUp")
     async def lvlUp(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        """
+        Handles the level-up button interaction in the shop.
+
+        This method checks if the player has enough gold to level up and if the player's
+        level is below the maximum allowed level. If the player meets the requirements,
+        the gold is deducted, and the player's level is incremented by one. The embed is
+        updated to reflect the new level and gold amount. If the player has reached the
+        maximum level or lacks sufficient gold, an appropriate message is set in the footer
+        of the embed.
+
+        Args:
+            interaction (discord.Interaction): The interaction object for the command.
+            button (discord.ui.Button): The button that triggered the interaction.
+
+        Returns:
+            None
+        """
+
         self.player.refresh_data()
         player_level=self.player.get("level")
         player_gold=self.player.get("gold")
@@ -59,6 +86,22 @@ class ShopView(discord.ui.View):
 
     @discord.ui.button(emoji="🃏", style=discord.ButtonStyle.success, custom_id="buyCards")
     async def buyCards(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        """
+        Handles the "Acheter 3 cartes" button interaction.
+
+        If the player has at least 30 gold, 30 gold is deducted from their balance,
+        and 3 card stock is added to their inventory. The embed is updated to reflect
+        the new stock and gold balance, and a success message is displayed in the footer.
+        If the player lacks sufficient gold, an error message is displayed in the footer.
+        
+        Args:
+            interaction (discord.Interaction): The interaction object for the command.
+            button (discord.ui.Button): The button that triggered the interaction.
+        
+        Returns:
+            None
+        """
+
         self.player.refresh_data()
         if self.player.get("gold")>=30:
             self.player.add("gold",-30)

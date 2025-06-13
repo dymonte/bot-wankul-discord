@@ -39,7 +39,7 @@ shop_prices={
 
 maxLvl=len(shop_prices["lvlUp"].keys())
 
-with open("help.json") as f:
+with open("bot/help.json") as f:
     help_dict=json.load(f)
 
 help_choices=[]
@@ -49,6 +49,12 @@ for i in help_dict:
 
 
 def formated_date()->list:
+    """
+    Returns the current date in the format [year, day of the year, hour]
+
+    Returns:
+        list: a list containing the current year, day of the year and hour
+    """
     return [time.localtime().tm_year,time.localtime().tm_yday,time.localtime().tm_hour]
 
 
@@ -59,6 +65,12 @@ embed_error = discord.Embed(
 )
 
 def embed_wait() -> discord.Embed:
+    """
+    Returns an embed that says that the user has no more rolls left
+    
+    Returns:
+        discord.Embed: the embed
+    """
     return discord.Embed(
         title="Pas de roll restants",
         description=f"Attendez {60-time.localtime().tm_min} min avant de pouvoir roll ou achetez-en dans le `/shop`.",
@@ -66,6 +78,17 @@ def embed_wait() -> discord.Embed:
     )
 
 def embed_shop(level : int, stock : int, money : int) -> discord.Embed:
+    """
+    Returns an embed for the shop
+    
+    Parameters:
+        level (int): the player's level
+        stock (int): the player's current stock
+        money (int): the player's current gold
+    
+    Returns:
+        discord.Embed: the embed
+    """
     embed=discord.Embed(
         title=f"**Shop** - 🪙 {money}",
         color=discord.Color.dark_gold(),
@@ -80,6 +103,16 @@ def embed_shop(level : int, stock : int, money : int) -> discord.Embed:
 
 def embed_help(command : str=None, lang : str="fr") -> list[discord.Embed]:
     
+    """
+    Returns an embed or a list of embeds for the help command.
+    
+    Parameters:
+        command (str): the command to display the help for, if None, displays the introduction and all commands.
+        lang (str): the language to display the help in, currently only "fr" is supported.
+    
+    Returns:
+        list[discord.Embed]: a list of embeds for the help command, or None if the command is not found.
+    """
     embeds=[]       
         
         
@@ -133,6 +166,16 @@ def embed_help(command : str=None, lang : str="fr") -> list[discord.Embed]:
 
 
 def format_str_search(name : str) -> str:
+    """
+    Formats a string for search by converting it to lowercase and replacing certain accented characters and spaces.
+
+    Parameters:
+        name (str): The input string to be formatted.
+
+    Returns:
+        str: The formatted string with lowercase characters and specific replacements.
+    """
+
     return name.lower().replace("é","e").replace("à","a").replace(" ","")
 
 
