@@ -16,7 +16,7 @@ class Cards():
 
     async def get_cards_by_rarity(rarity):
         async with aiohttp.ClientSession() as session:
-            async with session.get(url+"/v1/rarity/"+str(rarity)+"/cards") as resp:
+            async with session.get(url+"/v1/rarity/"+str(rarity)+"/list") as resp:
                 return await resp.json()
     
     async def get_rarities():
@@ -83,7 +83,7 @@ class Cards():
 
     async def random_card():
         rarities=await Cards.get_rarities()
-        rarities=[rarities[k] for k in rarities]
+        # rarities=[rarities[k] for k in rarities]
         rarities=rarities[:9] # ne garde que jusqu'a la rarete gold
 
         rarity=random.choices(rarities, [float(i.get("txDrop",0).replace("%","")) for i in rarities], k=1)[0]

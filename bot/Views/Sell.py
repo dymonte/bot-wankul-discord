@@ -60,7 +60,7 @@ class SellView(discord.ui.View):
 
         self.embed.set_footer(text=f"Accepté pour {self.value} 🪙")
         self.embed.color=discord.Color.green()
-        await self.inte.edit_original_response(embed=self.embed, view=None)
+        await self.inte.edit_original_response(embed=self.embed, view=None, delete_after=10)
         await interaction.response.defer()
         self.stop()
 
@@ -89,7 +89,7 @@ class SellView(discord.ui.View):
         """
         self.embed.color=discord.Color.red()
         self.embed.set_footer(text=message)
-        await self.inte.edit_original_response(embed=self.embed, view=None)
+        await self.inte.edit_original_response(embed=self.embed, view=None, delete_after=10)
         self.stop()
         
     async def on_timeout(self) -> None:
@@ -100,5 +100,5 @@ class SellView(discord.ui.View):
         """
         self.embed.set_footer(f"Temps écoulé")
         self.embed.color=discord.Color.greyple()
-        await self.inte.edit_original_response(embed=self.embed, view=None)
+        await self.inte.edit_original_response(embed=self.embed, view=None, delete_after=10)
         self.stop()

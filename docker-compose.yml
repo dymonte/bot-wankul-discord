@@ -9,11 +9,27 @@ services:
     restart: unless-stopped
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
-      - API_URL=${API_URL}
+      - API_URL=http://api:3000
       - DB_HOST=mongodb
       - DB_PORT=27017
+    volumes:
+      - ./bot:/bot
     depends_on:
       - mongodb
+      - api
+
+  api:
+    build:
+      context: ../api-wankul # Ajuste ce chemin selon l'emplacement de ton API
+      dockerfile: Dockerfile
+    container_name: wankul-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    volumes:
+      - ../api-wankul:/app # Ajuste ce chemin selon l'emplacement de ton API
 
   mongodb:
     image: mongo:latest

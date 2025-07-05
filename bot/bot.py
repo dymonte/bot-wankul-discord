@@ -356,9 +356,9 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
     except:
         color=discord.Color.from_str("#000000")
 
-    embed=discord.Embed(title=f"{user.global_name} ({user.name})", color=color)
+    embed=discord.Embed(title=f"{user.display_name} ({user.name})", color=color)
     embed.set_thumbnail(url=user.display_avatar.url)
-    embed.add_field(name="💎 Level", value=f"{player.get("level")}", inline=True)
+    embed.add_field(name="💎 Level", value=f"{player.get("level")}/5", inline=True)
     embed.add_field(name="🪙 Gold", value=f"{player.get("gold")}", inline=True)
     embed.add_field(name="", value="", inline=False)
     embed.add_field(name="📦 Stock", value=f"{player.get("stock")}", inline=True)

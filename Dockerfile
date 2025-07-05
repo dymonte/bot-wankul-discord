@@ -1,12 +1,16 @@
-FROM python:alpine3.20
+FROM python:3.11-slim
 
 WORKDIR /bot
 
-COPY bot/ /bot/
-
-RUN pip install --upgrade pip
+# Copier d'abord les fichiers de dépendances
+COPY bot/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copier tous les fichiers du dossier bot
+COPY bot/ .
+
+# Définir PYTHONUNBUFFERED pour avoir les logs en temps réel
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python3", "bot.py"]
+# Lancer le bot
+CMD ["python", "bot.py"]

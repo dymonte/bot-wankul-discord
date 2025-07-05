@@ -60,7 +60,7 @@ class ShopView(discord.ui.View):
         player_gold=self.player.get("gold")
 
 
-        if player_level<fbot.maxLvl and self.player.get_gold()>=fbot.shop_prices["lvlUp"][player_level+1]: # si le joueur a assez de gold et que le niveau n'est pas maximum
+        if player_level<fbot.maxLvl and self.player.get("gold")>=fbot.shop_prices["lvlUp"][player_level+1]: # si le joueur a assez de gold et que le niveau n'est pas maximum
             self.player.add("gold", -1*fbot.shop_prices["lvlUp"][player_level+1])
             self.player.add("level", 1)
 
@@ -70,7 +70,7 @@ class ShopView(discord.ui.View):
             player_gold=self.player.get("gold")
 
 
-            self.embed=fbot.embed_shop(player_level, self.player.get_stock(), player_gold)
+            self.embed=fbot.embed_shop(player_level, self.player.get("stock"), player_gold)
 
             self.embed.set_footer(text="+1 level")
 
@@ -107,13 +107,18 @@ class ShopView(discord.ui.View):
             self.player.add("gold",-30)
             self.player.add("stock",3)
 
-            self.embed.set_field_at(1,name="🃏 **Acheter 3 cartes** (🪙 30)", value=f"Achetez des stocks de roll supplémentaires\nVous avez actuellement {self.player.get_stock()} en stock", inline=False)
+            self.embed.set_field_at(1,name="🃏 **Acheter 3 cartes** (🪙 30)", value=f"Achetez des stocks de roll supplémentaires\nVous avez actuellement {self.player.get("stock")} en stock", inline=False)
 
             self.embed.set_footer(text="+3 cartes en stock")
         else:
             self.embed.set_footer(text="Pas assez de gold")
         
-        self.embed.title=f"**Shop** - 🪙 {self.player.get_gold()}"
+        self.embed.title=f"**Shop** - 🪙 {self.player.get("gold")}"
         await interaction.response.edit_message(embed=self.embed)
 
-
+    async def on_timeout(self) -> None:
+        """
+        Handles the timeout of the shop view.
+        """
+        await self.inte.delete_original_response()
+        self.stop()

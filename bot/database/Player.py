@@ -121,7 +121,7 @@ class Player(PlayerDatabase):
             nb_remaining_roll=self.update_roll()
     
         else:
-            self.add_stock(-1)
+            self.add("stock",-1)
             nb_remaining_roll=0
 
         rolled=await Cards.random_card()
@@ -192,14 +192,14 @@ class Player(PlayerDatabase):
         query = {f"${action}": {f"players.{self.user_id}.{field}": amount}}
 
         try:
-            self.player_table.update_one(
+            self.players_table.update_one(
                     {"_id": str(self.guild_id)},
                     query)
             
             self.data[field] = self.data.get(field, 0) + amount if action == "inc" else amount
         
         except:
-            return False
+            raise Exception("Error updating player data")
 
         return True
     
