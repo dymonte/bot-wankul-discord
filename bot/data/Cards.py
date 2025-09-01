@@ -1,10 +1,10 @@
 import discord, random
 
-import fbot
+import utils as utils
 
 import aiohttp
 
-url=fbot.API_URL
+url=utils.API_URL
 
 
 class Cards():
@@ -96,7 +96,7 @@ class Cards():
     async def search(name : str)->list:
         cards=await Cards.get_all_cards()
 
-        return [card["id"] for card in cards if fbot.format_str_search(name) in fbot.format_str_search(card["name"])]
+        return [card["id"] for card in cards if utils.format_str_search(name) in utils.format_str_search(card["name"])]
     
 
 

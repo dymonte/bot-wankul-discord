@@ -1,6 +1,6 @@
 import discord
 
-import fbot
+import utils as utils
 
 import database.PlayerDB as PlayerDB
 
@@ -60,8 +60,8 @@ class ShopView(discord.ui.View):
         player_gold=self.player.get("gold")
 
 
-        if player_level<fbot.maxLvl and self.player.get("gold")>=fbot.shop_prices["lvlUp"][player_level+1]: # si le joueur a assez de gold et que le niveau n'est pas maximum
-            self.player.add("gold", -1*fbot.shop_prices["lvlUp"][player_level+1])
+        if player_level<utils.maxLvl and self.player.get("gold")>=utils.shop_prices["lvlUp"][player_level+1]: # si le joueur a assez de gold et que le niveau n'est pas maximum
+            self.player.add("gold", -1*utils.shop_prices["lvlUp"][player_level+1])
             self.player.add("level", 1)
 
 
@@ -70,11 +70,11 @@ class ShopView(discord.ui.View):
             player_gold=self.player.get("gold")
 
 
-            self.embed=fbot.embed_shop(player_level, self.player.get("stock"), player_gold)
+            self.embed=utils.embed_shop(player_level, self.player.get("stock"), player_gold)
 
             self.embed.set_footer(text="+1 level")
 
-        elif player_level>=fbot.maxLvl:
+        elif player_level>=utils.maxLvl:
             self.embed.set_footer(text="LVL maximum atteint")
 
         else:

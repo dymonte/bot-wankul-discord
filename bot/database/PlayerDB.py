@@ -1,4 +1,5 @@
-import discord, fbot
+import discord
+import utils as utils
 from database.Database import Database
 from data.Cards import Cards
 

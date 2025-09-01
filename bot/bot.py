@@ -9,7 +9,7 @@ from discord import app_commands
 
 # --- Imports intern ---
 import database.PlayerDB as PlayerDB
-import fbot
+import utils
 from database.Player import Player
 from Views.Collection import CollectionView
 from Views.Trade import TradeAcceptView
@@ -97,7 +97,7 @@ async def roll(inte : discord.Interaction):
     """
     player=Player(inte.guild.id, inte.user.id)
     r=await player.roll()
-    await inte.response.send_message(embed=r if r else fbot.embed_wait(), ephemeral=r==None, delete_after=(7 if r==None else None))
+    await inte.response.send_message(embed=r if r else utils.embed_wait(), ephemeral=r==None, delete_after=(7 if r==None else None))
 
 
 @tree.command(name="collection", description="list")
@@ -254,7 +254,7 @@ async def sell(inte : discord.Interaction, offre : str):
     for id_card, quantity in formated_list:
         rarity=(await Cards.get_rarity(int(id_card))).get("id")
 
-        value+=fbot.cost_per_rarity.get(rarity, 0)*int(quantity)
+        value+=utils.cost_per_rarity.get(rarity, 0)*int(quantity)
     
     await send_sell_message(inte, player, formated_list, value)
 
@@ -298,7 +298,7 @@ async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : boo
             quantity_to_sell=quantity-quantity_to_keep
             formated_list.append((id_card, quantity_to_sell))
 
-            total_price+=fbot.cost_per_rarity.get((await Cards.get_rarity(int(id_card))).get("id"), 0)*(quantity_to_sell)
+            total_price+=utils.cost_per_rarity.get((await Cards.get_rarity(int(id_card))).get("id"), 0)*(quantity_to_sell)
 
     if len(formated_list)>0: await send_sell_message(inte, player, formated_list, total_price)
     else : await inte.response.send_message(content="aucune carte", ephemeral=True, delete_after=5)
@@ -405,7 +405,7 @@ async def shop(inte : discord.Interaction):
         None
     """
     player=Player(inte.guild.id, inte.user.id)
-    embed=fbot.embed_shop(player.get("level"), player.get("stock"), player.get("gold"))
+    embed=utils.embed_shop(player.get("level"), player.get("stock"), player.get("gold"))
     
     await inte.response.send_message(embed=embed, ephemeral=True, view=ShopView(inte, player, embed))
 
@@ -434,7 +434,7 @@ async def wish(inte : discord.Interaction, w : int = 0):
 
 # --- Help ---
 @tree.command(name="help", description="Aide")
-@app_commands.choices(command=fbot.help_choices)
+@app_commands.choices(command=utils.help_choices)
 async def help(inte : discord.Interaction, command : discord.app_commands.Choice[str] = None):
     """
     Displays help information.
@@ -451,7 +451,7 @@ async def help(inte : discord.Interaction, command : discord.app_commands.Choice
         None
     """
     if command!=None: command=command.value
-    embeds=fbot.embed_help(command)
+    embeds=utils.embed_help(command)
     await inte.response.send_message(embeds=embeds, ephemeral=True, delete_after=120)
 
 @tree.command(name="feedback", description="Permet d'afficher le formulaire de Feedback")
@@ -497,4 +497,4 @@ async def disc(inte : discord.Interaction):
 
 
 # --- Run ---
-bot.run(fbot.DISCORD_TOKEN)
+bot.run(utils.DISCORD_TOKEN)

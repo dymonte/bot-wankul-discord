@@ -4,7 +4,7 @@ from data.Cards import Cards
 
 import discord
 
-import fbot
+import utils as utils
 
 
 
@@ -68,8 +68,8 @@ class Player(PlayerDatabase):
         Returns:
             bool: True if the player can roll, False otherwise.
         """
-        if fbot.formated_date()==self.data.get("last_roll",(0,0,0)):
-            return self.data.get("number_of_rolls",0)<(self.data.get("level",1)+fbot.default_nb_rolls) 
+        if utils.formated_date()==self.data.get("last_roll",(0,0,0)):
+            return self.data.get("number_of_rolls",0)<(self.data.get("level",1)+utils.default_nb_rolls) 
         return True
 
     def update_roll(self) -> int:
@@ -86,15 +86,15 @@ class Player(PlayerDatabase):
             int: The number of remaining rolls.
         """
         
-        if fbot.formated_date()!=self.data.get("last_roll",(0,0,0)): # si l'heure a changée depuis le dernier roll
-            self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".last_roll":fbot.formated_date()}}) # on met a jour l'heure
+        if utils.formated_date()!=self.data.get("last_roll",(0,0,0)): # si l'heure a changée depuis le dernier roll
+            self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".last_roll":utils.formated_date()}}) # on met a jour l'heure
             self.players_table.update_one({"_id":str(self.guild_id)},{"$set":{"players."+str(self.user_id)+".number_of_rolls":1}}) # on reset le nombre de rolls
 
-            return (self.data.get("level",0)+fbot.default_nb_rolls)-1
+            return (self.data.get("level",0)+utils.default_nb_rolls)-1
     
-        if self.data.get("number_of_rolls",0)<(self.data.get("level",0)+fbot.default_nb_rolls): # sinon si il reste des rolls
+        if self.data.get("number_of_rolls",0)<(self.data.get("level",0)+utils.default_nb_rolls): # sinon si il reste des rolls
             self.players_table.update_one({"_id":str(self.guild_id)},{"$inc":{"players."+str(self.user_id)+".number_of_rolls":1}}) # on incremente le nombre de roll
-        return (self.data.get("level",0)+fbot.default_nb_rolls)-(self.data.get("number_of_rolls",0)+1)
+        return (self.data.get("level",0)+utils.default_nb_rolls)-(self.data.get("number_of_rolls",0)+1)
 
 
     async def roll(self) -> discord.Embed: 
@@ -131,7 +131,7 @@ class Player(PlayerDatabase):
         embed=(await Cards.get_embed_card(rolled["id"])).set_footer(text=f"Restants : {nb_remaining_roll}"+(f" (+{self.get("stock")} en stock)" if self.get("stock")>0 else "")) # affiche le nombre de rolls restants et le stock au bas de l'embed
 
         if rolled["id"]==self.get("wish"):
-            earning=int(100*fbot.cost_per_rarity.get(rolled.get("rarity",{}).get("id",0),0))
+            earning=int(100*utils.cost_per_rarity.get(rolled.get("rarity",{}).get("id",0),0))
             embed.add_field(name="Wish gagné", value=f"+ {earning} 🪙", inline=False)
             self.add("gold",earning)
 

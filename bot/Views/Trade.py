@@ -1,7 +1,7 @@
 import discord
 
 from data.Cards import Cards
-import fbot
+import utils as utils
 
 from database.Player import Player
 
