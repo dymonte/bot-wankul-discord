@@ -8,7 +8,7 @@ import utils as utils
 
 
 
-original_player_data={"last_roll":(0,0,0), "gold":100000, "level":0, "color":"#ffffff", "number_of_rolls":0, "stock":5, "wish":0, "cards":{}}
+original_player_data={"last_roll":(0,0,0), "gold":0, "level":0, "color":"#ffffff", "number_of_rolls":0, "stock":5, "wish":0, "cards":{}}
 
 
 class Player(PlayerDatabase):

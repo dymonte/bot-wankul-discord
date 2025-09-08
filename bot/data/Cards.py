@@ -71,7 +71,7 @@ class Cards():
 
         else:
             embed = discord.Embed(
-                title=f"**{card.get('title','-')}** "+(""if quantity==0 else f" *({quantity}x)*"),
+                title=f"{utils.get_emoji_for_rarity(card.get('rarityId',1))} **{card.get('title','-')}** {utils.get_emoji_for_rarity(card.get('rarityId',1))} "+(""if quantity==0 else f" *({quantity}x)*"),
                 description=f"**#{id_card}**\n{card.get("rarity", {}).get('accronym','')}",
                 color=discord.Colour.from_str(card.get("season", {}).get("color", "#000000")),
             )
@@ -106,7 +106,7 @@ class Cards():
         cards : le dictionnaire des cartes possedees par le joueur (verfication si il les possede)
         gold : le nombre de gold du joueur (verfication si il en possede assez)
 
-        -> la liste des cartes sous forme [[122,2],[384,1]] ainsi que l'argent que le joueur propose
+        retourne la liste des cartes sous forme [[122,2],[384,1]] ainsi que l'argent que le joueur propose
         """
 
         try:

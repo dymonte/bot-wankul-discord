@@ -178,6 +178,28 @@ def format_str_search(name : str) -> str:
 
     return name.lower().replace("é","e").replace("à","a").replace(" ","")
 
+def get_emoji_for_rarity(rarity : int) -> str:
+    """
+    Returns the emoji for the given rarity.
+
+    Parameters:
+        rarity (int): The rarity of the card.
+
+    Returns:
+        str: The emoji for the given rarity.
+    """
+    match rarity:
+        case 5 | 6:
+            return "✨"
+        case 7:
+            return "🥉"
+        case 8:
+            return "🥈"
+        case 9:
+            return "🥇"
+        case _:
+            return ""
+
 
 
 if __name__ == "__main__":

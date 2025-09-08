@@ -199,7 +199,7 @@ async def te(inte : discord.Interaction, user : discord.User, offre : str, deman
 
 
 @tree.command(name="search", description="Search")
-async def se(inte : discord.Interaction, name : str):
+async def se(inte : discord.Interaction, name : str) -> None:
     """
     Searches for cards with the given name.
 
@@ -227,7 +227,7 @@ async def se(inte : discord.Interaction, name : str):
 
 
 @tree.command(name="sell", description="sell")
-async def sell(inte : discord.Interaction, offre : str):
+async def sell(inte : discord.Interaction, offre : str) -> None:
     """
     Sells the given cards.
 
@@ -260,7 +260,7 @@ async def sell(inte : discord.Interaction, offre : str):
 
 
 @tree.command(name="auto_sell", description="vendre automatiquement (max 30 cartes)")
-async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : bool = True):
+async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : bool = True) -> None:
     """
     Automatically sells cards with the given rarity or lower, up to 30 cards.
 
@@ -330,7 +330,7 @@ async def send_sell_message(inte : discord.Interaction, player : Player, formate
 
 # --- Player ---
 @tree.command(name="info_player", description="Affiche le profil du joueur")
-async def info_player(inte : discord.Interaction, user : discord.User = None, show : bool = True):
+async def info_player(inte : discord.Interaction, user : discord.User = None, show : bool = True) -> None:
     """
     Displays the player profile.
 
@@ -368,7 +368,7 @@ async def info_player(inte : discord.Interaction, user : discord.User = None, sh
 
 
 @tree.command(name="change_color", description="Change la couleur du profil du joueur")
-async def change_color(inte : discord.Interaction, color : str):
+async def change_color(inte : discord.Interaction, color : str) -> None:
     """
     Changes the player's profile color.
 
@@ -390,7 +390,7 @@ async def change_color(inte : discord.Interaction, color : str):
 
 
 @tree.command(name="shop", description="Ouvrir le shop")
-async def shop(inte : discord.Interaction):
+async def shop(inte : discord.Interaction) -> None:
     """
     Opens the shop.
 
@@ -410,7 +410,7 @@ async def shop(inte : discord.Interaction):
     await inte.response.send_message(embed=embed, ephemeral=True, view=ShopView(inte, player, embed))
 
 @tree.command(name="wish", description="Définit un nouveau wish ou affiche l'actuel")
-async def wish(inte : discord.Interaction, w : int = 0):
+async def wish(inte : discord.Interaction, w : int = 0) -> None:
     """
     Changes the player's wish or displays the current one.
 
@@ -435,7 +435,7 @@ async def wish(inte : discord.Interaction, w : int = 0):
 # --- Help ---
 @tree.command(name="help", description="Aide")
 @app_commands.choices(command=utils.help_choices)
-async def help(inte : discord.Interaction, command : discord.app_commands.Choice[str] = None):
+async def help(inte : discord.Interaction, command : discord.app_commands.Choice[str] = None) -> None:
     """
     Displays help information.
 
@@ -455,7 +455,7 @@ async def help(inte : discord.Interaction, command : discord.app_commands.Choice
     await inte.response.send_message(embeds=embeds, ephemeral=True, delete_after=120)
 
 @tree.command(name="feedback", description="Permet d'afficher le formulaire de Feedback")
-async def feedback(inte : discord.Interaction):
+async def feedback(inte : discord.Interaction) -> None:
     """
     Displays the feedback form link.
 
@@ -474,7 +474,7 @@ async def feedback(inte : discord.Interaction):
     
 
 @tree.command(name="discord", description="Permet d'afficher le lien du discord officiel du bot")
-async def disc(inte : discord.Interaction):
+async def disc(inte : discord.Interaction) -> None:
     """
     Displays the official Discord server invite link.
 
