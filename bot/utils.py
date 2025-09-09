@@ -120,7 +120,10 @@ def embed_help(command : str=None, lang : str="fr") -> list[discord.Embed]:
         embed_motif=discord.Embed(
             title="**Motifs**",
             color=discord.Color.dark_gold(),
-            description="Les Motifs permettent de définir une liste de cartes. Par exemple, `420|1&32|2` correspond à une fois la carte numéro 420 et deux fois la carte numéro 32, laissez simplement `&` pour un motif vide. Ajoutez un espace, une valeur puis \"g\" pour inclure de l'argent (uniquement pour les échanges)."
+            description="Les Motifs permettent de définir une liste de cartes." \
+            "Pour cela, vous devez écrire des couples contenant un numéro de carte et une quantité séparés par un `|`. Chaque couple est séparé par un `&`." \
+            "Ajoutez un espace, une valeur puis `g` pour inclure de l'argent (uniquement pour les échanges)." \
+            "Exemple: `420|1&32|2 10g` correspond à une fois la carte numéro 420 et deux fois la carte numéro 32 et 10 gold, laissez simplement `&` pour un motif vide."
         )
 
 

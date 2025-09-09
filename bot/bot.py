@@ -329,7 +329,7 @@ async def send_sell_message(inte : discord.Interaction, player : Player, formate
 
 
 # --- Player ---
-@tree.command(name="info_player", description="Affiche le profil du joueur")
+@tree.command(name="profile", description="Affiche le profil du joueur")
 async def info_player(inte : discord.Interaction, user : discord.User = None, show : bool = True) -> None:
     """
     Displays the player profile.
@@ -410,7 +410,7 @@ async def shop(inte : discord.Interaction) -> None:
     await inte.response.send_message(embed=embed, ephemeral=True, view=ShopView(inte, player, embed))
 
 @tree.command(name="wish", description="Définit un nouveau wish ou affiche l'actuel")
-async def wish(inte : discord.Interaction, w : int = 0) -> None:
+async def wish(inte : discord.Interaction, new_wish : int = 0) -> None:
     """
     Changes the player's wish or displays the current one.
 
@@ -425,11 +425,11 @@ async def wish(inte : discord.Interaction, w : int = 0) -> None:
         None
     """
     player=Player(inte.guild.id, inte.user.id)
-    if w==0:
+    if new_wish==0:
         await inte.response.send_message(f"Votre wish actuel est {player.get("wish")}")
     else:
-        player.set("wish", w)
-        await inte.response.send_message(f"Votre wish est maintenant {w}")
+        player.set("wish", new_wish)
+        await inte.response.send_message(f"Votre wish est maintenant  {new_wish}")
 
 
 # --- Help ---
@@ -489,6 +489,7 @@ async def disc(inte : discord.Interaction) -> None:
         None
     """
     # TODO : ajouter lien discord
+    
     await inte.response.send_message(content="https://discord.gg/", ephemeral=True, delete_after=120)
 
 
