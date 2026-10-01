@@ -11,7 +11,7 @@ API_URL = os.getenv('API_URL')
 
 
 
-default_nb_rolls=5
+default_nb_rolls=5 # nombre de rolls par defaut, probablement ideal = 5 ou 10
 
 cost_per_rarity={
     1:1,
@@ -62,6 +62,12 @@ embed_error = discord.Embed(
     title="Error",
     description="You can't roll yet !",
     color=discord.Color.red(),
+)
+
+embed_no_cards_to_sell = discord.Embed(
+    title="Error",
+    description="No cards to sell !",
+    color=discord.Color.blurple(),
 )
 
 def embed_wait() -> discord.Embed:

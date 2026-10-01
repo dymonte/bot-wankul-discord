@@ -9,9 +9,8 @@ from data.Cards import Cards
 
 class SellView(discord.ui.View):
     """
-    ! ATTENTION : problème de verification des cartes, voir Views/Trade.py
+    A class representing a view for selling cards.
     """
-
     def __init__(self, inte: discord.Interaction, player : Player, list_cards : list, value : int, embed: discord.Embed) -> None:
         """
         Initializes the SellView with interaction details, player information, 
@@ -49,7 +48,7 @@ class SellView(discord.ui.View):
             await interaction.response.defer()
             return
         
-        for id_card, quantity in self.list_cards:
+        for id_card, quantity in self.list_cards: #verifier les cartes
             if not self.player.has(int(id_card), int(quantity)):
                 await self.cancel_sell("Il manque une carte.")
                 return

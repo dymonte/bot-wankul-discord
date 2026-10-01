@@ -7,10 +7,10 @@ from data.Cards import Cards
 p=PlayerDatabase()
 
 class CollectionView(discord.ui.View): 
-    def __init__(self, list_of_cards):
+    def __init__(self, list_of_cards : list, page : int):
         super().__init__()
         self.list=list_of_cards
-        self.n=0
+        self.n=(page-1)%len(self.list)
 
     @discord.ui.button(label="", style=discord.ButtonStyle.secondary, emoji="⬅️") # Create a button
     async def previous_card(self, interaction, button):

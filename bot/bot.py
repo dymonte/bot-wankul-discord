@@ -101,7 +101,7 @@ async def roll(inte : discord.Interaction):
 
 
 @tree.command(name="collection", description="list")
-async def cl(inte : discord.Interaction, user : discord.User = None, show : bool = True):
+async def cl(inte : discord.Interaction, user : discord.User = None, page : int = 1, show : bool = True):
     """
     Displays the card collection of a specified user or the command issuer.
 
@@ -132,7 +132,7 @@ async def cl(inte : discord.Interaction, user : discord.User = None, show : bool
     elif len(list_of_cards)==1:
         await inte.response.send_message(ephemeral=not show, embed=(await Cards.get_embed_card(list_of_cards[0][0], list_of_cards[0][1])).set_footer(text="1/1"))
     else:
-        await inte.response.send_message(ephemeral=not show, embed=(await Cards.get_embed_card(list_of_cards[0][0], list_of_cards[0][1])).set_footer(text=f"1/{len(list_of_cards)}"), view=CollectionView(list_of_cards))
+        await inte.response.send_message(ephemeral=not show, embed=(await Cards.get_embed_card(list_of_cards[(page-1)%len(list_of_cards)][0], list_of_cards[(page-1)%len(list_of_cards)][1])).set_footer(text=f"{(page)%len(list_of_cards)}/{len(list_of_cards)}"), view=CollectionView(list_of_cards, page))
 
 
 @tree.command(name="info_card", description="Informations sur une carte")
@@ -199,7 +199,7 @@ async def te(inte : discord.Interaction, user : discord.User, offre : str, deman
 
 
 @tree.command(name="search", description="Search")
-async def se(inte : discord.Interaction, name : str) -> None:
+async def search(inte : discord.Interaction, name : str) -> None:
     """
     Searches for cards with the given name.
 
@@ -301,7 +301,7 @@ async def auto_sell(inte : discord.Interaction, rarity : int = 3, keep_one : boo
             total_price+=utils.cost_per_rarity.get((await Cards.get_rarity(int(id_card))).get("id"), 0)*(quantity_to_sell)
 
     if len(formated_list)>0: await send_sell_message(inte, player, formated_list, total_price)
-    else : await inte.response.send_message(content="aucune carte", ephemeral=True, delete_after=5)
+    else : await inte.response.send_message(embed=utils.embed_no_cards_to_sell, ephemeral=True, delete_after=5)
 
 
 async def send_sell_message(inte : discord.Interaction, player : Player, formated_list : list, value : int) -> None:
