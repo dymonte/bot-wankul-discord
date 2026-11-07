@@ -7,7 +7,7 @@ Ce projet est un bot Discord développé en Python qui permet aux utilisateurs d
 
 ## Fonctionnalités
 
-* LObtenir et collectionner des cartes
+* Obtenir et collectionner des cartes
 * Echanger des cartes avec d'autres joueurs
 * Vendre des cartes pour obtenir de l'or
 * Acheter des cartes dans un magasin et améliorer son niveau dans la boutique
